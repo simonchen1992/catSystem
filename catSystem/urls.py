@@ -19,12 +19,12 @@ Including another URLconf
 # urlpatterns = [
 #     path('admin/', admin.site.urls),
 # ]
-
+from django.contrib import admin
 from django.urls import path, include
 from . import view
 
 urlpatterns = [
-    path('admin/', view.hello),
+    path('admin/', admin.site.urls),
     path('finance/', include('finance.urls')),
     
 ]
