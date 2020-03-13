@@ -1,1 +1,19 @@
-<h1>{{ hello }}</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <h1>User</h1>
+    <hr>
+    {% for user in users %}
+    <div>
+        <h3>
+            <p>{{ user.username }}</p>
+            <p>{{ user.password }}</p>
+        </h3>
+    </div>
+    {% endfor %}
+</body>
+</html>

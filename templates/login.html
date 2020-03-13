@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <h1>
+        Cat or Mouse?
+    </h1>
+    <hr>
+    <p>{{ hint }}</p>
+    <div class="login">
+        <div class="col-md-12 column">
+            <form action ='/login/' method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                     <label for="username">User</label>
+                    <div>
+                        <input type="text" id="username" name="username"/>
+                    </div>
+
+                </div>
+                <div class="form-group">
+                     <label for="password">Password</label>
+                    <div>
+                        <input type="password" id="password" name="password"/>
+                    </div>
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-default" style="height:20px;width:100px">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+      <title></title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <!-- 引入 Bootstrap -->
+      <link href="/static/bootstrap-3.3.7-dist/css/bootstrap.css" rel="stylesheet">
+
+      <!-- HTML5 Shiv 和 Respond.js 用于让 IE8 支持 HTML5元素和媒体查询 -->
+      <!-- 注意： 如果通过 file://  引入 Respond.js 文件，则该文件无法起效果 -->
+      <!--[if lt IE 9]>
+         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+         <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+      <![endif]-->
+   </head>
+<body>
+    <h1>增加动物成员</h1>
+    <hr>
+    <p style="color: red; margin:10px 15px">{{ hint }}</p>
+    <div class="col-md-12 column">
+        <form action ='/finance/animal/add/' method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <div class = 'name'>
+                    <label for="name">你想添加的动物成员是？</label>
+                    <input type="text" id="name" name="name"/>
+                </div>
+            </div>
+
+            <div>
+                <button type="submit" class="btn btn-default">Submit</button>
+                <a href="../"><button type="button" class="btn btn-default">Previous</button></a>
+            </div>
+        </form>
+    </div>
+
+
+
+    <!-- jQuery (Bootstrap 的 JavaScript 插件需要引入 jQuery) -->
+      <script src="https://code.jquery.com/jquery.js"></script>
+      <!-- 包括所有已编译的插件 -->
+      <script src="/static/bootstrap-3.3.7-dist/js/bootstrap.js"></script>
+</body>
+</html>

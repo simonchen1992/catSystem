@@ -21,10 +21,12 @@ Including another URLconf
 # ]
 from django.contrib import admin
 from django.urls import path, include
+from django.shortcuts import redirect
 from . import view
 
 urlpatterns = [
+	path('', include('finance.urls')),
     path('admin/', admin.site.urls),
     path('finance/', include('finance.urls')),
-    
+	path('login/', view.login)
 ]

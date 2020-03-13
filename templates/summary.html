@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+      <title></title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <!-- 引入 Bootstrap -->
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+
+      <!-- HTML5 Shiv 和 Respond.js 用于让 IE8 支持 HTML5元素和媒体查询 -->
+      <!-- 注意： 如果通过 file://  引入 Respond.js 文件，则该文件无法起效果 -->
+      <!--[if lt IE 9]>
+         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+         <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+      <![endif]-->
+   </head>
+<body>
+    <h1>每月粮食盘点</h1>
+    <hr>
+    <div class="container-fluid">
+    <nav aria-label="Page navigation">
+      <ul class="pagination">
+
+        <!--上一页-->
+        <li class="{% if not page.has_previous %}disabled{% endif %}">
+          {% if page.has_previous %}
+            <a href="?page={{ page.previous_page_number }}" aria-label="Previous">
+          {% endif %}
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+
+        <!--页码-->
+        <!--这里展示页码使用传递过来的dis_range -->
+        {% for num in dis_range %}
+        <li class="{% if num == page.number %}active{% else %}{% endif %}" >
+          <a href="?page={{ num }}">{{ num }}</a>
+        </li>
+        {% endfor %}
+
+        <!--下一页-->
+        <li class="{% if not page.has_next %}disabled{% endif %}">
+          {% if page.has_next %}
+            <a href="?page={{ page.next_page_number }}" aria-label="Next">
+          {% endif %}
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </ul>
+    <a href="../" style="float:right; margin:0px 50px 0px 10px" >上一页 </a>
+    </nav>
+    </div>
+
+
+    <div class ='table'>
+    <table class="table">
+        <thead>
+            <tr>
+                <th style="white-space:nowrap">年份</th>
+                <th style="white-space:nowrap">月份</th>
+                <th style="white-space:nowrap">更改时间</th>
+                <th style="white-space:nowrap">猫收入</th>
+                <th style="white-space:nowrap">猫支出</th>
+                <th style="white-space:nowrap">鼠收入</th>
+                <th style="white-space:nowrap">鼠支出</th>
+                <th style="white-space:nowrap">特殊收入</th>
+                <th style="white-space:nowrap">特殊支出</th>
+                <th style="white-space:nowrap">剩余食物</th>
+            </tr>
+        </thead>
+        {% for item in page %}
+            <tbody>
+                <tr>
+                    <td style="white-space:nowrap">{{ item.year }}</td>
+                    <td style="white-space:nowrap">{{ item.month }}</td>
+                    <td style="white-space:nowrap">{{ item.updateTime|date:"Y-m-d H:i:s" }}</td>
+                    <td style="white-space:nowrap">{{ item.catIncome }}</td>
+                    <td style="white-space:nowrap">{{ item.catOutcome }}</td>
+                    <td style="white-space:nowrap">{{ item.mouseIncome }}</td>
+                    <td style="white-space:nowrap">{{ item.mouseOutcome }}</td>
+                    <td>{{ item.specialIncome }}</td>
+                    <td>{{ item.specialOutcome }}</td>
+                    <td>{{ item.remainFood }}</td>
+                </tr>
+            </tbody>
+        {% endfor %}
+    </table>
+    </div>
+
+    <!-- jQuery (Bootstrap 的 JavaScript 插件需要引入 jQuery) -->
+      <script src="https://cdn.jsdelivr.net/npm/jquery@1.12.4/dist/jquery.min.js"></script>
+      <!-- 包括所有已编译的插件 -->
+      <script src="/static/bootstrap-3.3.7-dist/js/bootstrap.js"></script>
+</body>
+</html>
