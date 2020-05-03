@@ -27,7 +27,7 @@ from django.conf import settings
 from . import view
 
 urlpatterns = [
-	url(r'^static/(?P<path>.*)$', static.serve, {'document_root': settings.STATIC_ROOT}, name='static'),
+	url(r'^static/(?P<path>.*)$', static.serve, {'document_root': settings.STATICFILES_DIRS}, name='static'),
 	path('', include('finance.urls')),
     path('admin/', admin.site.urls),
     path('finance/', include('finance.urls')),
