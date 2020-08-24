@@ -5,6 +5,19 @@
     <title></title>
 </head>
 <body>
+    <SCRIPT LANGUAGE="JavaScript">
+    function isHidden(oDiv){
+    var vDiv = document.getElementById(oDiv);
+    vDiv.style.display = (vDiv.style.display == 'none')?'block':'none';
+    // add code
+    var allDiv = document.getElementsByTagName('div');
+    for (var i=0; i<allDiv.length; i++) {
+    if (vDiv != allDiv[i]) {
+    allDiv[i].style.display = 'none';
+    }
+    }
+    }
+    </SCRIPT>
     <h1>Welcome to Cat Mouse Home</h1>
     <div class="container-fluid">
 	<div class="row-fluid">
@@ -26,6 +39,18 @@
 				<li>
 					<a href="/finance/summary">每月存量小结</a>
 				</li>
+                <li>
+					数据分析
+                    <ul>
+						<li>
+							<a href="/finance/statistic/income">收入分析</a>
+						</li>
+                        <li>
+							<a href="/finance/statistic/outcome">支出分析</a>
+						</li>
+					</ul>
+				</li>
+
 			</ul>
 		</div>
 	</div>

@@ -14,7 +14,7 @@
       <![endif]-->
    </head>
 <body>
-    <h1>每月粮食盘点</h1>
+    <h1>精致分析--支出</h1>
     <hr>
     <div class="container-fluid">
     <nav aria-label="Page navigation">
@@ -58,13 +58,18 @@
                 <th style="white-space:nowrap">年份</th>
                 <th style="white-space:nowrap">月份</th>
                 <th style="white-space:nowrap">更改时间</th>
-                <th style="white-space:nowrap">猫收入</th>
-                <th style="white-space:nowrap">猫支出</th>
-                <th style="white-space:nowrap">鼠收入</th>
-                <th style="white-space:nowrap">鼠支出</th>
-                <th style="white-space:nowrap">额外收入</th>
+                <th style="white-space:nowrap">人员</th>
+                <th style="white-space:nowrap">独自用餐</th>
+                <th style="white-space:nowrap">共同用餐</th>
+                <th style="white-space:nowrap">游戏</th>
+                <th style="white-space:nowrap">交通</th>
+                <th style="white-space:nowrap">购物</th>
+                <th style="white-space:nowrap">趣多多</th>
+                <th style="white-space:nowrap">水电</th>
+                <th style="white-space:nowrap">煤气</th>
+                <th style="white-space:nowrap">家庭采购</th>
+                <th style="white-space:nowrap">旅游</th>
                 <th style="white-space:nowrap">额外支出</th>
-                <th style="white-space:nowrap">剩余食物</th>
             </tr>
         </thead>
         {% for item in page %}
@@ -72,16 +77,22 @@
                 <tr>
                     <td style="white-space:nowrap">{{ item.year }}</td>
                     <td style="white-space:nowrap">
-                        <a >{{ item.month }}</a>
+                        {{ item.month }}
                     </td>
                     <td style="white-space:nowrap">{{ item.updateTime|date:"Y-m-d H:i:s" }}</td>
-                    <td style="white-space:nowrap">{{ item.catIncome }}</td>
-                    <td style="white-space:nowrap">{{ item.catOutcome }}</td>
-                    <td style="white-space:nowrap">{{ item.mouseIncome }}</td>
-                    <td style="white-space:nowrap">{{ item.mouseOutcome }}</td>
-                    <td>{{ item.specialIncome }}</td>
-                    <td>{{ item.specialOutcome }}</td>
-                    <td>{{ item.remainFood }}</td>
+                    <td style="white-space:nowrap">{{ item.member_id }}</td>
+                    <td>{{ item.outcomePerMeal }}</td>
+                    <td>{{ item.outcomeTogMeal }}</td>
+                    <td>{{ item.outcomeGame }}</td>
+                    <td>{{ item.outcomeTraffic }}</td>
+                    <td>{{ item.outcomePurchase }}</td>
+                    <td>{{ item.outcomeFamCat }}</td>
+                    <td>{{ item.outcomeFamEle }}</td>
+                    <td>{{ item.outcomeFamGas }}</td>
+                    <td>{{ item.outcomeFamPurchase }}</td>
+                    <td>{{ item.outcomeFamTravel }}</td>
+                    <td>{{ item.outcomeOther }}</td>
+
                 </tr>
             </tbody>
         {% endfor %}

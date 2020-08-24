@@ -14,6 +14,37 @@
       <![endif]-->
    </head>
 <body>
+    <SCRIPT LANGUAGE="JavaScript">
+    function changeFoodTpe(obj){
+    var financeType = document.getElementById('financeType');
+    var foodType = document.getElementById('foodType');
+    foodType.options.length=0;
+
+    if('income'==financeType.value){
+    {% for t in incomeType %}
+        option = new Option("{{ t.foodType }}", "{{ t.foodType }}");
+        foodType.add(option);
+
+    {% endfor %}
+    }else if('outcome'==financeType.value){
+     {% for t in outcomeType %}
+        option = new Option("{{ t.foodType }}", "{{ t.foodType }}");
+        foodType.add(option)
+    {% endfor %}
+    }
+    }
+
+    function hideComment(obj){
+    var comment = document.getElementById('formComment');
+    var foodType = document.getElementById('foodType');
+
+    if('额外收入'==foodType.value||'额外支出'==foodType.value){
+        comment.removeAttribute('hidden')
+    }else{
+        comment.setAttribute('hidden',true)
+    }
+    }
+    </SCRIPT>
     <h1>增加粮食记录</h1>
     <hr>
     <p style="color: red; margin:10px 15px">{{ hint }}</p>
@@ -33,9 +64,19 @@
             <div class="form-group">
                 <div class = 'financeType'>
                     <label >偷粮食 or 加粮食?</label>
-                    <select class="combobox" name = 'financeType'>
+                    <select id="financeType" class="combobox" name = 'financeType' onchange="changeFoodTpe(this);">
                       <option value="income">收入</option>
                       <option value="outcome">支出</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class = 'foodType'>
+                    <label >支出类型</label>
+                    <select id="foodType" class="combobox" name = 'foodType' onchange="hideComment(this);">
+                        {% for type in incomeType %}
+                            <option>{{ type.foodType }}</option>
+                        {% endfor %}
                     </select>
                 </div>
             </div>
@@ -45,6 +86,15 @@
                     <input type="text" id="amount" name="amount"/>
                 </div>
             </div>
+            <div class="form-group">
+                <div hidden class = 'amount' id = 'formComment'>
+                    <label for="comment">备注</label>
+                    <input type="text" id="comment" name="comment"/>
+                </div>
+            </div>
+
+
+
 
             <div>
                 <button type="submit" class="btn btn-default">Submit</button>

@@ -19,4 +19,7 @@ urlpatterns = [
     path('animal/add/', views.animalAdd),
     path('animal/', views.animalDisplay),
     path('summary/', views.summaryDisplay),
+    path('statistic/income/', views.statisticDisplay, kwargs={'financeType': 'income'}),
+    path('statistic/outcome/', views.statisticDisplay, kwargs={'financeType': 'outcome'})
+    #path('statistic/(?P<year>\d+)/(?P<month>\d+)', views.statisticDisplay, name='statistic')
 ]

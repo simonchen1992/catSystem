@@ -48,7 +48,7 @@
           </a>
         </li>
       </ul>
-    <a href="../" style="float:right; margin:0px 50px 0px 10px" >上一页 </a>
+    <a href="../" style="float:right; margin:0px 90px 0px 10px" >上一页 </a>
     <a href="add/" style="float:right; margin:0px 10px" >添加粮食记录</a>
     </nav>
     </div>
@@ -57,9 +57,7 @@
     <table class="table">
         <thead>
             <tr>
-                <th style="white-space:nowrap">
-                    编号
-                </th>
+                <th style="white-space:nowrap">你是谁？</th>
                 <th style="white-space:nowrap">
                     时间
                 </th>
@@ -69,15 +67,13 @@
                 <th style="white-space:nowrap">
                     数量
                 </th>
-                <th style="white-space:nowrap">你是谁？</th>
+
             </tr>
         </thead>
         {% for item in page %}
             <tbody>
                 <tr>
-                    <td style="white-space:nowrap">
-                        {{ item.no }}
-                    </td>
+                    <td style="white-space:nowrap">{{ item.member_id }}</td>
                     <td style="white-space:nowrap">
                         {{ item.time|date:"Y-m-d H:i:s" }}
                     </td>
@@ -87,7 +83,7 @@
                     <td style="white-space:nowrap">
                         {{ item.amount }}
                     </td>
-                    <td style="white-space:nowrap">{{ item.member_id }}</td>
+
                 </tr>
             </tbody>
     {% endfor %}
