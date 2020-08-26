@@ -7,6 +7,7 @@ from django.core.paginator import Paginator
 from finance.models import Animal, Summary, Detail, Type, OutcomeStatistic, IncomeStatistic
 from django import forms
 import datetime
+import requests
 
 
 
@@ -22,6 +23,10 @@ def check_login(f):
 #@check_login
 def detailDisplay(request):
 	if request.method == 'GET':
+		# if request.GET.get('hint'):
+		# 	hint = request.GET.get('hint')
+		# else:
+		# 	hint = ''
 		details = Detail.objects.all()
 		paginator = Paginator(details, 15)
 		pageNum = request.GET.get('page', default='1')
@@ -44,7 +49,14 @@ def detailDisplay(request):
 			displayRange = range(paginator.num_pages - 9, paginator.num_pages + 1)
 		data = {'page': page, 'paginator': paginator, 'dis_range': displayRange}
 		return render(request, 'detail.html', data)
-
+	if request.method == 'POST':
+		delete_id = request.POST['delete_id']
+		password = request.POST['password']
+		if password == 'HJH930712':
+			Detail.objects.filter(pk=delete_id).delete()
+			return HttpResponse('Delete record successfully.')
+		else:
+			return HttpResponse('Wrong password!')
 
 def detailAdd(request):
 	animals = Animal.objects.all()
@@ -59,6 +71,8 @@ def detailAdd(request):
 		else:
 			hint = '戆都填完所有空格！'
 	return render(request, 'detailAdd.html', {'animals': animals, 'incomeType': incomeType, 'outcomeType': outcomeType, 'hint': hint})
+
+	
 
 
 def animalDisplay(request):
