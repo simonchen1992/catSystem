@@ -46,7 +46,7 @@
           </a>
         </li>
       </ul>
-    <a href="../" style="float:right; margin:0px 50px 0px 10px" >上一页 </a>
+    <a href="/finance" style="float:right; margin:0px 50px 0px 10px" >返回首页 </a>
     </nav>
     </div>
 
@@ -59,6 +59,8 @@
                 <th style="white-space:nowrap">月份</th>
                 <th style="white-space:nowrap">更改时间</th>
                 <th style="white-space:nowrap">人员</th>
+                <th style="white-space:nowrap">月度个人支出</th>
+                <th style="white-space:nowrap">月度家庭支出</th>
                 <th style="white-space:nowrap">独自用餐</th>
                 <th style="white-space:nowrap">共同用餐</th>
                 <th style="white-space:nowrap">游戏</th>
@@ -81,6 +83,8 @@
                     </td>
                     <td style="white-space:nowrap">{{ item.updateTime|date:"Y-m-d H:i:s" }}</td>
                     <td style="white-space:nowrap">{{ item.member_id }}</td>
+                    <td>{{ item.personalExpense }}</td>
+                    <td>{{ item.familyExpense }}</td>
                     <td>{{ item.outcomePerMeal }}</td>
                     <td>{{ item.outcomeTogMeal }}</td>
                     <td>{{ item.outcomeGame }}</td>

@@ -80,6 +80,8 @@ class OutcomeStatistic(models.Model):
 	member = models.ForeignKey(Animal, on_delete=models.PROTECT, to_field='name', verbose_name='成员2',related_name="支出统计")
 	updateTime = models.DateTimeField(auto_now=True, verbose_name='更改日期')
 	# 支出类型
+	personalExpense = models.FloatField(verbose_name='月度个人支出', default=0)
+	familyExpense = models.FloatField(verbose_name='月度家庭支出', default=0)
 	outcomePerMeal = models.FloatField(verbose_name='独自用餐', default=0)
 	outcomeTogMeal = models.FloatField(verbose_name='共同用餐', default=0)
 	outcomeGame = models.FloatField(verbose_name='游戏', default=0)

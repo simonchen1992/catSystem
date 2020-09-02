@@ -7,7 +7,6 @@ from django.core.paginator import Paginator
 from finance.models import Animal, Summary, Detail, Type, OutcomeStatistic, IncomeStatistic
 from django import forms
 import datetime
-import requests
 
 
 
@@ -27,7 +26,7 @@ def detailDisplay(request):
 		# 	hint = request.GET.get('hint')
 		# else:
 		# 	hint = ''
-		details = Detail.objects.all()
+		details = Detail.objects.order_by('-time')
 		paginator = Paginator(details, 15)
 		pageNum = request.GET.get('page', default='1')
 		try:
@@ -117,8 +116,7 @@ def animalAdd(request):
 def summaryDisplay(request):
 	if request.method == 'GET':
 		summaryUpdate()
-		order = Summary.objects.order_by('月份')
-		summarys = Summary.objects.all()
+		summarys = Summary.objects.order_by('-month')
 		
 		paginator = Paginator(summarys, 15)
 		pageNum = request.GET.get('page', default='1')
@@ -187,11 +185,10 @@ def statisticDisplay(request, financeType):
 	if request.method == 'GET':
 		statisticUpdate(financeType)
 		if financeType == 'income':
-			IncomeStatistic.objects.order_by('月份')
-			statistics = IncomeStatistic.objects.all()
+			statistics = IncomeStatistic.objects.order_by('-month')
+			#statistics = IncomeStatistic.objects.all()
 		elif financeType == 'outcome':
-			OutcomeStatistic.objects.order_by('月份')
-			statistics = OutcomeStatistic.objects.all()
+			statistics = OutcomeStatistic.objects.order_by('-month')
 		paginator = Paginator(statistics, 15)
 		pageNum = request.GET.get('page', default='1')
 		try:
@@ -271,6 +268,8 @@ def statisticUpdate(financeType):
 				sta.outcomeFamEle = calculate(detail, member_id, financeType, '水电')
 				sta.outcomeFamGas = calculate(detail, member_id, financeType, '煤气')
 				sta.outcomeFamPurchase = calculate(detail, member_id, financeType, '家庭采购')
+				sta.personalExpense = sta.outcomePerMeal + sta.outcomeGame + sta.outcomePurchase + sta.outcomeTogMeal/2 + sta.outcomeTraffic
+				sta.familyExpense = sta.outcomeFamCat + sta.outcomeFamEle + sta.outcomeFamGas + sta.outcomeFamTravel + sta.outcomeFamPurchase
 				for t in detail.filter(member_id=member_id, financeType=financeType, foodType_id='额外支出'):
 					sta.incomeOther += '%s: %.1f; ' % (t.comment, t.amount)
 				sta.save()
