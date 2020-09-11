@@ -271,7 +271,7 @@ def statisticUpdate(financeType):
 				sta.personalExpense = sta.outcomePerMeal + sta.outcomeGame + sta.outcomePurchase + sta.outcomeTogMeal/2 + sta.outcomeTraffic
 				sta.familyExpense = sta.outcomeFamCat + sta.outcomeFamEle + sta.outcomeFamGas + sta.outcomeFamTravel + sta.outcomeFamPurchase
 				for t in detail.filter(member_id=member_id, financeType=financeType, foodType_id='额外支出'):
-					sta.incomeOther += '%s: %.1f; ' % (t.comment, t.amount)
+					sta.outcomeOther += '%s: %.1f; ' % (t.comment, t.amount)
 				sta.save()
 
 	# update current month
