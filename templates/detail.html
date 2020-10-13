@@ -26,8 +26,30 @@
             window.location.reload();
       })
     }
-    </script>
 
+    function filter(type, value) {
+        if(value === '无筛选'){
+            var re =new RegExp("(\\?|&)" + type + "=[^&]*");
+            var reQ = new RegExp("\\?" + type + "=[^&]*");
+            window.location.href = window.location.href.replace(re, "");
+            if (window.location.href.search(reQ) != -1 && window.location.href.search(/&/) != -1){
+                window.location.href = window.location.href.replace(re, "").replace("&", "?");
+            }
+        }
+        else if (window.location.href.search(/\?/) != -1){
+            var re =new RegExp(type + "=[^&]*");
+            if (window.location.href.search(re) != -1){
+                window.location.href = window.location.href.replace(re, type + "=" + value);
+            }
+            else{
+                window.location.href += "&" + type + "=" + value;
+            }
+        }
+        else{
+            window.location.href += "?" + type + "=" + value;
+        }
+    }
+    </script>
 </head>
 <body>
 
@@ -64,9 +86,24 @@
           </a>
         </li>
       </ul>
+
     <a href="../" style="float:right; margin:0px 90px 0px 10px" >返回首页 </a>
     <a href="add/" style="float:right; margin:0px 10px" >添加粮食记录</a>
     </nav>
+    </div>
+    <div>
+        <select style="width:100px; float:right; margin:0px 90px 0px 10px" class="form-control" onchange="filter('member', this.value)">
+            <option>筛选人</option>
+            <option>猫哥</option>
+            <option>鼠妹</option>
+            <option>无筛选</option>
+        </select>
+        <select style="width:100px; float:right; margin:0px 10px 0px 10px" class="form-control" onchange="filter('financeType', this.value)">
+            <option>筛选支出/收入</option>
+            <option>income</option>
+            <option>outcome</option>
+            <option>无筛选</option>
+        </select>
     </div>
 
     <div class ='table'>

@@ -14,6 +14,7 @@ from finance import views
 urlpatterns = [
     path('', views.index),
     path('index/', views.index),
+    path('detail/filter/', views.detailFilter),
     path('detail/add/', views.detailAdd),
     path('detail/', views.detailDisplay),
     path('animal/add/', views.animalAdd),

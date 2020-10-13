@@ -27,6 +27,10 @@ def detailDisplay(request):
 		# else:
 		# 	hint = ''
 		details = Detail.objects.order_by('-time')
+		if request.GET.get('member', ''):
+			details = details.filter(member_id=request.GET.get('member', '')).order_by('-time')
+		if request.GET.get('financeType', ''):
+			details = details.filter(financeType=request.GET.get('financeType', '')).order_by('-time')
 		paginator = Paginator(details, 15)
 		pageNum = request.GET.get('page', default='1')
 		try:
@@ -57,6 +61,38 @@ def detailDisplay(request):
 		else:
 			return HttpResponse('Wrong password!')
 
+def detailFilter(request):
+	if request.method == 'GET':
+		# if request.GET.get('hint'):
+		# 	hint = request.GET.get('hint')
+		# else:
+		# 	hint = ''
+		if request.GET.get('member', ''):
+			details = Detail.objects.filter(member_id=request.GET.get('member', '')).order_by('-time')
+		else:
+			details = Detail.objects.order_by('-time')
+		paginator = Paginator(details, 15)
+		pageNum = request.GET.get('page', default='1')
+		try:
+			page = paginator.page(pageNum)
+		except Exception as e:
+			page = paginator.page(1)
+			pageNum = 1
+		
+		# 这部分是为了再有大量数据时，仍然保证所显示的页码数量不超过10，
+		pageNum = int(pageNum)
+		if pageNum < 6:
+			if paginator.num_pages <= 10:
+				displayRange = range(1, paginator.num_pages + 1)
+			else:
+				displayRange = range(1, 11)
+		elif (pageNum >= 6) and (pageNum <= paginator.num_pages - 5):
+			displayRange = range(pageNum - 5, pageNum + 5)
+		else:
+			displayRange = range(paginator.num_pages - 9, paginator.num_pages + 1)
+		data = {'page': page, 'paginator': paginator, 'dis_range': displayRange}
+	return render(request, 'summary.html', data)
+
 def detailAdd(request):
 	animals = Animal.objects.all()
 	incomeType = Type.objects.filter(financeType = '收入')
@@ -64,7 +100,11 @@ def detailAdd(request):
 	hint = ''
 	if request.method == 'POST':
 		if request.POST and request.POST['member_id'] and request.POST['financeType'] and request.POST['amount'] and request.POST['foodType'] and (request.POST['comment'] or request.POST['foodType'] not in ['额外支出', '额外收入']):
-			d = Detail(member_id = request.POST['member_id'], financeType = request.POST['financeType'], amount = request.POST['amount'], foodType_id=request.POST['foodType'], comment=request.POST['comment'])
+			if request.POST['datetime'] == '':
+				d = Detail(member_id = request.POST['member_id'], financeType = request.POST['financeType'], amount = request.POST['amount'], foodType_id=request.POST['foodType'], comment=request.POST['comment'])
+			else:
+				fixTime = datetime.datetime.strptime(request.POST['datetime'], '%Y-%m-%dT%H:%M')
+				d = Detail(member_id=request.POST['member_id'], time=fixTime, financeType = request.POST['financeType'], amount = request.POST['amount'], foodType_id=request.POST['foodType'], comment=request.POST['comment'])
 			d.save()
 			hint = '成功录入粮食记录'
 		else:
@@ -234,9 +274,9 @@ def statisticUpdate(financeType):
 		if d.filter(member_id=member_id, financeType=financeType, foodType_id=foodType):
 			for item in d.filter(member_id=member_id, financeType=financeType, foodType_id=foodType):
 				result += item.amount
-		return result
+		return round(result, 2)
 
-	# update last month
+	# update last month and current month
 	for (month, year, detail) in [(lastM, lastY, detailLastMonth), (curM, curY, detailCurMonth)]:
 		if financeType == 'income':
 			for member_id in ['猫哥', '鼠妹']:
@@ -248,6 +288,7 @@ def statisticUpdate(financeType):
 				sta.incomeFinance = calculate(detail, member_id, financeType, '理财')
 				sta.incomeSalary = calculate(detail, member_id, financeType, '工资')
 				sta.incomeReward = calculate(detail, member_id, financeType, '奖金')
+				sta.incomeOther = ''
 				for t in detail.filter(member_id=member_id, financeType=financeType, foodType_id='额外收入'):
 					sta.incomeOther += '%s: %.1f; ' % (t.comment, t.amount)
 				sta.save()
@@ -260,6 +301,7 @@ def statisticUpdate(financeType):
 				sta.member_id = member_id
 				sta.outcomePerMeal = calculate(detail, member_id, financeType, '独自用餐')
 				sta.outcomeTogMeal = calculate(detail, member_id, financeType, '共同用餐')
+				togMealCal = (calculate(detail, '猫哥', financeType, '共同用餐') + calculate(detail, '鼠妹', financeType, '共同用餐'))/2
 				sta.outcomeGame = calculate(detail, member_id, financeType, '游戏')
 				sta.outcomeFamTravel = calculate(detail, member_id, financeType, '旅游')
 				sta.outcomePurchase = calculate(detail, member_id, financeType, '购物')
@@ -268,8 +310,9 @@ def statisticUpdate(financeType):
 				sta.outcomeFamEle = calculate(detail, member_id, financeType, '水电')
 				sta.outcomeFamGas = calculate(detail, member_id, financeType, '煤气')
 				sta.outcomeFamPurchase = calculate(detail, member_id, financeType, '家庭采购')
-				sta.personalExpense = sta.outcomePerMeal + sta.outcomeGame + sta.outcomePurchase + sta.outcomeTogMeal/2 + sta.outcomeTraffic
-				sta.familyExpense = sta.outcomeFamCat + sta.outcomeFamEle + sta.outcomeFamGas + sta.outcomeFamTravel + sta.outcomeFamPurchase
+				sta.personalExpense = round(sta.outcomePerMeal + sta.outcomeGame + sta.outcomePurchase + togMealCal + sta.outcomeTraffic, 2)
+				sta.familyExpense = round(sta.outcomeFamCat + sta.outcomeFamEle + sta.outcomeFamGas + sta.outcomeFamTravel + sta.outcomeFamPurchase, 2)
+				sta.outcomeOther = ''
 				for t in detail.filter(member_id=member_id, financeType=financeType, foodType_id='额外支出'):
 					sta.outcomeOther += '%s: %.1f; ' % (t.comment, t.amount)
 				sta.save()
