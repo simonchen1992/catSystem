@@ -65,8 +65,8 @@
                 <div class = 'financeType'>
                     <label >偷粮食 or 加粮食?</label>
                     <select id="financeType" class="combobox" name = 'financeType' onchange="changeFoodTpe(this);">
-                      <option value="income">收入</option>
                       <option value="outcome">支出</option>
+                      <option value="income">收入</option>
                     </select>
                 </div>
             </div>
@@ -74,7 +74,7 @@
                 <div class = 'foodType'>
                     <label >支出类型</label>
                     <select id="foodType" class="combobox" name = 'foodType'>
-                        {% for type in incomeType %}
+                        {% for type in outcomeType %}
                             <option>{{ type.foodType }}</option>
                         {% endfor %}
                     </select>

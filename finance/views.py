@@ -5,6 +5,7 @@ from functools import wraps
 import json
 from django.core.paginator import Paginator
 from finance.models import Animal, Summary, Detail, Type, OutcomeStatistic, IncomeStatistic
+import django.utils.timezone as timezone
 from django import forms
 import datetime
 
@@ -31,6 +32,8 @@ def detailDisplay(request):
 			details = details.filter(member_id=request.GET.get('member', '')).order_by('-time')
 		if request.GET.get('financeType', ''):
 			details = details.filter(financeType=request.GET.get('financeType', '')).order_by('-time')
+		if request.GET.get('foodType', ''):
+			details = details.filter(foodType=request.GET.get('foodType', '')).order_by('-time')
 		paginator = Paginator(details, 15)
 		pageNum = request.GET.get('page', default='1')
 		try:
@@ -104,6 +107,11 @@ def detailAdd(request):
 				d = Detail(member_id = request.POST['member_id'], financeType = request.POST['financeType'], amount = request.POST['amount'], foodType_id=request.POST['foodType'], comment=request.POST['comment'])
 			else:
 				fixTime = datetime.datetime.strptime(request.POST['datetime'], '%Y-%m-%dT%H:%M')
+				now = datetime.datetime.now()
+				diffTime = now - fixTime
+				if diffTime.days < 0:
+					hint = '不允许填入未来的时间！'
+					return render(request, 'detailAdd.html', {'animals': animals, 'incomeType': incomeType, 'outcomeType': outcomeType, 'hint': hint})
 				d = Detail(member_id=request.POST['member_id'], time=fixTime, financeType = request.POST['financeType'], amount = request.POST['amount'], foodType_id=request.POST['foodType'], comment=request.POST['comment'])
 			d.save()
 			hint = '成功录入粮食记录'
