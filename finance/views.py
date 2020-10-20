@@ -101,8 +101,10 @@ def detailAdd(request):
 	incomeType = Type.objects.filter(financeType = '收入')
 	outcomeType = Type.objects.filter(financeType = '支出')
 	hint = ''
+	defaultMember = ''
 	if request.method == 'POST':
 		if request.POST and request.POST['member_id'] and request.POST['financeType'] and request.POST['amount'] and request.POST['foodType'] and (request.POST['comment'] or request.POST['foodType'] not in ['额外支出', '额外收入']):
+			defaultMember = request.POST['member_id']
 			if request.POST['datetime'] == '':
 				d = Detail(member_id = request.POST['member_id'], financeType = request.POST['financeType'], amount = request.POST['amount'], foodType_id=request.POST['foodType'], comment=request.POST['comment'])
 			else:
@@ -117,7 +119,7 @@ def detailAdd(request):
 			hint = '成功录入粮食记录'
 		else:
 			hint = '戆都填完所有空格！'
-	return render(request, 'detailAdd.html', {'animals': animals, 'incomeType': incomeType, 'outcomeType': outcomeType, 'hint': hint})
+	return render(request, 'detailAdd.html', {'defaultMember': defaultMember, 'animals': animals, 'incomeType': incomeType, 'outcomeType': outcomeType, 'hint': hint})
 
 	
 

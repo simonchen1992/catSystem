@@ -56,7 +56,11 @@
                     <label >哪只？</label>
                     <select class="combobox" name = 'member_id'>
                         {% for animal in animals %}
-                            <option>{{ animal }}</option>
+                            {% if animal.name == defaultMember %}
+                                <option selected="selected">{{ animal.name }}</option>
+                            {% else %}
+                                <option>{{ animal.name }}</option>
+                            {% endif %}
                         {% endfor %}
                     </select>
                 </div>
