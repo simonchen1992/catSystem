@@ -14,19 +14,6 @@
       <![endif]-->
     <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
     <script>
-    $.ajaxSetup({
-      data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
-    });
-
-    function delete_record(delete_id) {
-    var pwd = prompt('请输入密码');
-      $.post('/finance/detail/', {'password': pwd, 'delete_id': delete_id}, function(ret){
-          alert(ret);
-          if (ret == 'Delete record successfully.')
-            window.location.reload();
-      })
-    }
-
     function filter(type, value) {
         if(value === '无筛选'){
             var re =new RegExp("(\\?|&)" + type + "=[^&]*");
@@ -49,6 +36,35 @@
             window.location.href += "?" + type + "=" + value;
         }
     }
+
+    function getCookie(name){
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== ""){
+            var cookies = document.cookie.split(";");
+            for (var i = 0; i < cookies.length; i++){
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + "=")){
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie("csrftoken");
+
+
+    function delete_record(delete_id) {
+    var pwd = prompt('请输入密码');
+      $.post('/finance/detail/', {'password': pwd, 'delete_id': delete_id,'csrfmiddlewaretoken': csrftoken}, function(ret){
+          alert(ret);
+          if (ret == 'Delete record successfully.')
+            window.location.reload();
+      })
+    }
+
+
     </script>
 </head>
 <body>

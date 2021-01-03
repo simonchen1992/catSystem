@@ -5,6 +5,7 @@ from functools import wraps
 import json
 from django.core.paginator import Paginator
 from finance.models import Animal, Summary, Detail, Type, OutcomeStatistic, IncomeStatistic
+from django.views.decorators.csrf import ensure_csrf_cookie
 import django.utils.timezone as timezone
 from django import forms
 import datetime
@@ -21,6 +22,7 @@ def check_login(f):
 	return inner
 
 #@check_login
+@ensure_csrf_cookie
 def detailDisplay(request):
 	if request.method == 'GET':
 		# if request.GET.get('hint'):
