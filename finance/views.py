@@ -96,7 +96,7 @@ def detailFilter(request):
 		else:
 			displayRange = range(paginator.num_pages - 9, paginator.num_pages + 1)
 		data = {'page': page, 'paginator': paginator, 'dis_range': displayRange}
-	return render(request, 'summary.html', data)
+	return render(request, 'detail.html', data)
 
 def detailAdd(request):
 	animals = Animal.objects.all()
@@ -198,25 +198,32 @@ def summaryUpdate():
 	curY =datetime.date.today().year
 	curM = datetime.date.today().month
 	detailCurMonth = Detail.objects.filter(time__year= curY).filter(time__month= curM)
-	if datetime.date.today().month > 1:
-		lastY = datetime.date.today().year
-		lastM = datetime.date.today().month - 1
-		detailLastMonth = Detail.objects.filter(time__year= lastY).filter(time__month= lastM)
-	else:
-		lastY = datetime.date.today().year - 1
-		lastM = 12
-		detailLastMonth = Detail.objects.filter(time__year=lastY).filter(time__month= lastM)
-	
+	update_package = [(curM, curY, detailCurMonth)]
+	# update for one past year from now
+	for i in range(11):
+		if curM > 1:
+			lastY = curY
+			lastM = curM - 1
+			detailLastMonth = Detail.objects.filter(time__year=lastY).filter(time__month=lastM)
+		else:
+			lastY = curY - 1
+			lastM = 12
+			detailLastMonth = Detail.objects.filter(time__year=lastY).filter(time__month=lastM)
+		curM = lastM
+		curY = lastY
+		update_package.append((lastM, lastY, detailLastMonth))
+	print(update_package)
+
 	def calculate(d, member_id, type):
 		result = 0
 		if d.filter(member_id = member_id, financeType = type):
-			for item in d.filter(member_id = member_id, financeType = type):
+			for item in d.filter(member_id=member_id, financeType=type):
 				result += item.amount
 		return result
 	
 	# update last month and current month
-	for (month, year, detail) in [(lastM, lastY, detailLastMonth), (curM, curY, detailCurMonth)]:
-		if Summary.objects.filter(year= year).filter(month= month):
+	for (month, year, detail) in update_package:
+		if Summary.objects.filter(year=year).filter(month=month):
 			summary = Summary.objects.filter(year= year).filter(month=month)[0]
 		else:
 			summary = Summary(year=year, month=month)
@@ -237,10 +244,10 @@ def statisticDisplay(request, financeType):
 	if request.method == 'GET':
 		statisticUpdate(financeType)
 		if financeType == 'income':
-			statistics = IncomeStatistic.objects.order_by('-month')
+			statistics = IncomeStatistic.objects.order_by('-year', '-month')
 			#statistics = IncomeStatistic.objects.all()
 		elif financeType == 'outcome':
-			statistics = OutcomeStatistic.objects.order_by('-month')
+			statistics = OutcomeStatistic.objects.order_by('-year', '-month')
 		paginator = Paginator(statistics, 15)
 		pageNum = request.GET.get('page', default='1')
 		try:
@@ -272,14 +279,21 @@ def statisticUpdate(financeType):
 	curY = datetime.date.today().year
 	curM = datetime.date.today().month
 	detailCurMonth = Detail.objects.filter(time__year=curY).filter(time__month=curM)
-	if datetime.date.today().month > 1:
-		lastY = datetime.date.today().year
-		lastM = datetime.date.today().month - 1
-		detailLastMonth = Detail.objects.filter(time__year=lastY).filter(time__month=lastM)
-	else:
-		lastY = datetime.date.today().year - 1
-		lastM = 12
-		detailLastMonth = Detail.objects.filter(time__year=lastY).filter(time__month=lastM)
+	update_package = [(curM, curY, detailCurMonth)]
+	# update for one past year from now
+	for i in range(11):
+		if curM > 1:
+			lastY = curY
+			lastM = curM - 1
+			detailLastMonth = Detail.objects.filter(time__year=lastY).filter(time__month=lastM)
+		else:
+			lastY = curY - 1
+			lastM = 12
+			detailLastMonth = Detail.objects.filter(time__year=lastY).filter(time__month=lastM)
+		curM = lastM
+		curY = lastY
+		update_package.append((lastM, lastY, detailLastMonth))
+	print(update_package)
 
 	def calculate(d, member_id, financeType, foodType):
 		result = 0
@@ -289,7 +303,7 @@ def statisticUpdate(financeType):
 		return round(result, 2)
 
 	# update last month and current month
-	for (month, year, detail) in [(lastM, lastY, detailLastMonth), (curM, curY, detailCurMonth)]:
+	for (month, year, detail) in update_package:
 		if financeType == 'income':
 			for member_id in ['猫哥', '鼠妹']:
 				if IncomeStatistic.objects.filter(year=year).filter(month=month).filter(member_id=member_id):
