@@ -85,6 +85,7 @@ class OutcomeStatistic(models.Model):
 	outcomePerMeal = models.FloatField(verbose_name='独自用餐', default=0)
 	outcomeTogMeal = models.FloatField(verbose_name='共同用餐', default=0)
 	outcomeGame = models.FloatField(verbose_name='游戏', default=0)
+	outcomeWork = models.FloatField(verbose_name='工作', default=0)
 	outcomeFamTravel = models.FloatField(verbose_name='旅游', default=0)
 	outcomePurchase = models.FloatField(verbose_name='购物', default=0)
 	outcomeTraffic = models.FloatField(verbose_name='交通', default=0)

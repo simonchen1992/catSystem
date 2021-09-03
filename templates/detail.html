@@ -21,7 +21,7 @@
             var reQ = new RegExp("\\?" + type + "=[^&]*");
             window.location.href = window.location.href.replace(re, "");
             if (window.location.href.search(reQ) != -1 && window.location.href.search(/&/) != -1){
-                window.location.href = window.location.href.replace("&", "?");
+                window.location.href = window.location.href.replace(reQ, "").replace("&", "?");
             }
         }
         else if (window.location.href.search(/\?/) != -1){
@@ -138,8 +138,13 @@
         </select>
         <select style="width:100px; float:right; margin:0px 10px 0px 10px" class="form-control" onchange="filter('foodType', this.value)">
             <option>筛选类型</option>
+            <option>独自用餐</option>
             <option>共同用餐</option>
             <option>交通</option>
+            <option>购物</option>
+            <option>趣多多</option>
+            <option>游戏</option>
+            <option>工作</option>
             <option>水电</option>
             <option>煤气</option>
             <option>旅游</option>

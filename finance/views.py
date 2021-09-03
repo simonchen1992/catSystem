@@ -100,15 +100,15 @@ def detailFilter(request):
 
 def detailAdd(request):
 	animals = Animal.objects.all()
-	incomeType = Type.objects.filter(financeType = '收入')
-	outcomeType = Type.objects.filter(financeType = '支出')
+	incomeType = Type.objects.filter(financeType='收入')
+	outcomeType = Type.objects.filter(financeType='支出')
 	hint = ''
 	defaultMember = ''
 	if request.method == 'POST':
 		if request.POST and request.POST['member_id'] and request.POST['financeType'] and request.POST['amount'] and request.POST['foodType'] and (request.POST['comment'] or request.POST['foodType'] not in ['额外支出', '额外收入']):
 			defaultMember = request.POST['member_id']
 			if request.POST['datetime'] == '':
-				d = Detail(member_id = request.POST['member_id'], financeType = request.POST['financeType'], amount = request.POST['amount'], foodType_id=request.POST['foodType'], comment=request.POST['comment'])
+				d = Detail(member_id=request.POST['member_id'], financeType=request.POST['financeType'], amount=request.POST['amount'], foodType_id=request.POST['foodType'], comment=request.POST['comment'])
 			else:
 				fixTime = datetime.datetime.strptime(request.POST['datetime'], '%Y-%m-%dT%H:%M')
 				now = datetime.datetime.now()
@@ -116,7 +116,7 @@ def detailAdd(request):
 				if diffTime.days < 0:
 					hint = '不允许填入未来的时间！'
 					return render(request, 'detailAdd.html', {'animals': animals, 'incomeType': incomeType, 'outcomeType': outcomeType, 'hint': hint})
-				d = Detail(member_id=request.POST['member_id'], time=fixTime, financeType = request.POST['financeType'], amount = request.POST['amount'], foodType_id=request.POST['foodType'], comment=request.POST['comment'])
+				d = Detail(member_id=request.POST['member_id'], time=fixTime, financeType=request.POST['financeType'], amount=request.POST['amount'], foodType_id=request.POST['foodType'], comment=request.POST['comment'])
 			d.save()
 			hint = '成功录入粮食记录'
 		else:
@@ -216,10 +216,10 @@ def summaryUpdate():
 
 	def calculate(d, member_id, type):
 		result = 0
-		if d.filter(member_id = member_id, financeType = type):
+		if d.filter(member_id=member_id, financeType=type):
 			for item in d.filter(member_id=member_id, financeType=type):
 				result += item.amount
-		return result
+		return round(result, 2)
 	
 	# update last month and current month
 	for (month, year, detail) in update_package:
@@ -329,6 +329,7 @@ def statisticUpdate(financeType):
 				sta.outcomeTogMeal = calculate(detail, member_id, financeType, '共同用餐')
 				togMealCal = (calculate(detail, '猫哥', financeType, '共同用餐') + calculate(detail, '鼠妹', financeType, '共同用餐'))/2
 				sta.outcomeGame = calculate(detail, member_id, financeType, '游戏')
+				sta.outcomeWork = calculate(detail, member_id, financeType, '工作')
 				sta.outcomeFamTravel = calculate(detail, member_id, financeType, '旅游')
 				sta.outcomePurchase = calculate(detail, member_id, financeType, '购物')
 				sta.outcomeTraffic = calculate(detail, member_id, financeType, '交通')
@@ -336,7 +337,7 @@ def statisticUpdate(financeType):
 				sta.outcomeFamEle = calculate(detail, member_id, financeType, '水电')
 				sta.outcomeFamGas = calculate(detail, member_id, financeType, '煤气')
 				sta.outcomeFamPurchase = calculate(detail, member_id, financeType, '家庭采购')
-				sta.personalExpense = round(sta.outcomePerMeal + sta.outcomeGame + sta.outcomePurchase + togMealCal + sta.outcomeTraffic, 2)
+				sta.personalExpense = round(sta.outcomePerMeal + sta.outcomeGame + sta.outcomeWork + sta.outcomePurchase + togMealCal + sta.outcomeTraffic, 2)
 				sta.familyExpense = round(sta.outcomeFamCat + sta.outcomeFamEle + sta.outcomeFamGas + sta.outcomeFamTravel + sta.outcomeFamPurchase, 2)
 				sta.outcomeOther = ''
 				for t in detail.filter(member_id=member_id, financeType=financeType, foodType_id='额外支出'):

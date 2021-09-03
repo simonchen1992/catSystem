@@ -16,33 +16,35 @@
 <body>
     <SCRIPT LANGUAGE="JavaScript">
     function changeFoodTpe(obj){
-    var financeType = document.getElementById('financeType');
-    var foodType = document.getElementById('foodType');
-    foodType.options.length=0;
+        var financeType = document.getElementById('financeType');
+        var foodType = document.getElementById('foodType');
+        foodType.options.length=0;
 
-    if('income'==financeType.value){
-    {% for t in incomeType %}
-        option = new Option("{{ t.foodType }}", "{{ t.foodType }}");
-        foodType.add(option);
+        if('income'==financeType.value){
+            {% for t in incomeType %}
+                option = new Option("{{ t.foodType }}", "{{ t.foodType }}");
+                foodType.add(option);
 
-    {% endfor %}
-    }else if('outcome'==financeType.value){
-     {% for t in outcomeType %}
-        option = new Option("{{ t.foodType }}", "{{ t.foodType }}");
-        foodType.add(option)
-    {% endfor %}
-    }
+            {% endfor %}
+        }
+        else if('outcome'==financeType.value){
+             {% for t in outcomeType %}
+                option = new Option("{{ t.foodType }}", "{{ t.foodType }}");
+                foodType.add(option)
+             {% endfor %}
+        }
     }
 
     function hideComment(obj){
-    var comment = document.getElementById('formComment');
-    var foodType = document.getElementById('foodType');
+        var comment = document.getElementById('formComment');
+        var foodType = document.getElementById('foodType');
 
-    if('额外收入'==foodType.value||'额外支出'==foodType.value){
-        comment.removeAttribute('hidden')
-    }else{
-        comment.setAttribute('hidden',true)
-    }
+        if('额外收入'==foodType.value||'额外支出'==foodType.value){
+            comment.removeAttribute('hidden')
+        }
+        else{
+            comment.setAttribute('hidden',true)
+        }
     }
     </SCRIPT>
     <h1>增加粮食记录</h1>
