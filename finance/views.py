@@ -168,7 +168,7 @@ def animalAdd(request):
 def summaryDisplay(request):
 	if request.method == 'GET':
 		summaryUpdate()
-		summarys = Summary.objects.order_by('-month')
+		summarys = Summary.objects.order_by('-year', '-month')
 		
 		paginator = Paginator(summarys, 15)
 		pageNum = request.GET.get('page', default='1')
