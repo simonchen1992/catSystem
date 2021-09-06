@@ -330,6 +330,7 @@ def statisticUpdate(financeType):
 				togMealCal = (calculate(detail, '猫哥', financeType, '共同用餐') + calculate(detail, '鼠妹', financeType, '共同用餐'))/2
 				sta.outcomeGame = calculate(detail, member_id, financeType, '游戏')
 				sta.outcomeWork = calculate(detail, member_id, financeType, '工作')
+				sta.outcomeGift = calculate(detail, member_id, financeType, '礼物')
 				sta.outcomeFamTravel = calculate(detail, member_id, financeType, '旅游')
 				sta.outcomePurchase = calculate(detail, member_id, financeType, '购物')
 				sta.outcomeTraffic = calculate(detail, member_id, financeType, '交通')
@@ -337,7 +338,7 @@ def statisticUpdate(financeType):
 				sta.outcomeFamEle = calculate(detail, member_id, financeType, '水电')
 				sta.outcomeFamGas = calculate(detail, member_id, financeType, '煤气')
 				sta.outcomeFamPurchase = calculate(detail, member_id, financeType, '家庭采购')
-				sta.personalExpense = round(sta.outcomePerMeal + sta.outcomeGame + sta.outcomeWork + sta.outcomePurchase + togMealCal + sta.outcomeTraffic, 2)
+				sta.personalExpense = round(sta.outcomePerMeal + sta.outcomeGame + sta.outcomeWork + sta.outcomeGift + sta.outcomePurchase + togMealCal + sta.outcomeTraffic, 2)
 				sta.familyExpense = round(sta.outcomeFamCat + sta.outcomeFamEle + sta.outcomeFamGas + sta.outcomeFamTravel + sta.outcomeFamPurchase, 2)
 				sta.outcomeOther = ''
 				for t in detail.filter(member_id=member_id, financeType=financeType, foodType_id='额外支出'):

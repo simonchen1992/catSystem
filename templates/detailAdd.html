@@ -14,6 +14,18 @@
       <![endif]-->
    </head>
 <body>
+    <script type="text/javascript">
+	//<!CDATA[
+		var bodyBgs = [];
+		bodyBgs[0] = "/static/image/1.jpg";
+		bodyBgs[1] = "/static/image/2.jpg";
+		bodyBgs[2] = "/static/image/3.jpg";
+		bodyBgs[3] = "/static/image/4.jpg";
+		var randomBgIndex = Math.round( Math.random() * 3 );
+	//输出随机的背景图
+		document.write('<style>body{background-image:url(' + bodyBgs[randomBgIndex] + ');background-repeat:no-repeat;background-position: top;background-attachment: fixed;}</style>');
+	//]]>
+    </script>
     <SCRIPT LANGUAGE="JavaScript">
     function changeFoodTpe(obj){
         var financeType = document.getElementById('financeType');

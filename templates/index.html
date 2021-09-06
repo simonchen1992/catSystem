@@ -5,6 +5,18 @@
     <title></title>
 </head>
 <body>
+	<script type="text/javascript">
+	//<!CDATA[
+		var bodyBgs = [];
+		bodyBgs[0] = "/static/image/1.jpg";
+		bodyBgs[1] = "/static/image/2.jpg";
+		bodyBgs[2] = "/static/image/3.jpg";
+		bodyBgs[3] = "/static/image/4.jpg";
+		var randomBgIndex = Math.round( Math.random() * 3 );
+	//输出随机的背景图
+		document.write('<style>body{background-image:url(' + bodyBgs[randomBgIndex] + ');background-repeat:no-repeat;background-position: top;background-attachment: fixed;}</style>');
+	//]]>
+    </script>
     <SCRIPT LANGUAGE="JavaScript">
     function isHidden(oDiv){
     var vDiv = document.getElementById(oDiv);
@@ -27,8 +39,6 @@
             <h2>
                 <p>&nbsp&nbsp猫鼠粮食规划</p>
             </h2>
-
-
 			<ul class="nav nav-list">
 				<li>
 					<a href="/finance/animal">大胃王们</a>
