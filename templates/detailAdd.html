@@ -12,7 +12,13 @@
          <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
          <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
       <![endif]-->
-   </head>
+</head>
+<style>
+    .btn-primary{
+        background-color: transparent;
+        color: black
+    }
+</style>
 <body>
     <script type="text/javascript">
 	//<!CDATA[
@@ -29,20 +35,20 @@
     <SCRIPT LANGUAGE="JavaScript">
     function changeFoodTpe(obj){
         var financeType = document.getElementById('financeType');
-        var foodType = document.getElementById('foodType');
-        foodType.options.length=0;
+        var foodTypeDiv = document.getElementById('foodTypeDiv');
+        foodTypeDiv.innerHTML = "";
 
-        if('income'==financeType.value){
+        {#foodType.options.length=0;#}
+        if('收入'==financeType.value){
             {% for t in incomeType %}
-                option = new Option("{{ t.foodType }}", "{{ t.foodType }}");
-                foodType.add(option);
-
+                but =  '<button type="button" class="btn btn-primary" onclick="buttonGroupClick(\'foodType\', this)">{{ t.foodType }}</button>';
+                foodTypeDiv.innerHTML += but;
             {% endfor %}
         }
-        else if('outcome'==financeType.value){
+        else if('支出'==financeType.value){
              {% for t in outcomeType %}
-                option = new Option("{{ t.foodType }}", "{{ t.foodType }}");
-                foodType.add(option)
+                but =  '<button type="button" class="btn btn-primary" onclick="buttonGroupClick(\'foodType\', this)">{{ t.foodType }}</button>';
+                foodTypeDiv.innerHTML += but;
              {% endfor %}
         }
     }
@@ -58,6 +64,42 @@
             comment.setAttribute('hidden',true)
         }
     }
+
+
+    function buttonGroupClick(id, obj){
+        var name = obj.innerText;
+        if (document.getElementById(id).value != name){
+            document.getElementById(id).value = name;
+            if (id == "financeType"){
+                changeFoodTpe(document.getElementById(id));
+            }
+        }
+    }
+
+    function changeDate(delta, unit){
+        inputTime = document.getElementById("datetime");
+        var date = new Date(inputTime.value);
+        if (unit == "day"){
+            date.setDate(date.getDate() + delta);
+        }
+        else{
+            date.setHours(date.getHours() + delta);
+        }
+        // format datetime
+        var year = date.getFullYear()
+        var date = new Date(date);
+        // 因为js里month从0开始，所以要加1
+        var month = date.getMonth() + 1;
+        month = month < 10 ? "0" + month : month;
+        var day = date.getDate();
+        day = day < 10 ? "0" + day : day;
+        var hour = date.getHours();
+        hour = hour < 10 ? "0" + hour : hour;
+        var minute = date.getMinutes();
+        minute = minute < 10 ? "0" + minute : minute;
+        str = year + '-' + month + '-' + day + "T" + hour + ":" + minute;
+        inputTime.value = str
+    }
     </SCRIPT>
     <h1>增加粮食记录</h1>
     <hr>
@@ -68,34 +110,40 @@
             <div class="form-group">
                 <div class = 'member_id'>
                     <label >哪只？</label>
-                    <select class="combobox" name = 'member_id'>
+                    <input name = "member_id" id="member_id" readonly="readonly" value={{ defaultMember }}>
+                    <div class="btn-group">
                         {% for animal in animals %}
-                            {% if animal.name == defaultMember %}
-                                <option selected="selected">{{ animal.name }}</option>
-                            {% else %}
-                                <option>{{ animal.name }}</option>
-                            {% endif %}
+                            <button type="button" class="btn btn-primary" onclick="buttonGroupClick('member_id', this)">{{ animal.name }}</button>
                         {% endfor %}
-                    </select>
+                    </div>
                 </div>
             </div>
             <div class="form-group">
                 <div class = 'financeType'>
                     <label >偷粮食 or 加粮食?</label>
-                    <select id="financeType" class="combobox" name = 'financeType' onchange="changeFoodTpe(this);">
-                      <option value="outcome">支出</option>
-                      <option value="income">收入</option>
-                    </select>
+                    <input name = "financeType" id="financeType" readonly="readonly" style="width: 110px" value={{ defaultFinanceType }}>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-primary" onclick="buttonGroupClick('financeType', this)">支出</button>
+                        <button type="button" class="btn btn-primary" onclick="buttonGroupClick('financeType', this)">收入</button>
+                    </div>
                 </div>
             </div>
             <div class="form-group">
                 <div class = 'foodType'>
                     <label >支出类型</label>
-                    <select id="foodType" class="combobox" name = 'foodType'>
-                        {% for type in outcomeType %}
-                            <option>{{ type.foodType }}</option>
-                        {% endfor %}
-                    </select>
+                    <input name = "foodType" id="foodType" readonly="readonly">
+                    <br>
+                    <div class="btn-group" id="foodTypeDiv">
+                        {% if "支出" == defaultFinanceType %}
+                            {% for type in outcomeType %}
+                                <button type="button" class="btn btn-primary" onclick="buttonGroupClick('foodType', this)">{{ type.foodType }}</button>
+                            {% endfor %}
+                        {% else %}
+                            {% for type in incomeType %}
+                                <button type="button" class="btn btn-primary" onclick="buttonGroupClick('foodType', this)">{{ type.foodType }}</button>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
                 </div>
             </div>
             <div class="form-group">
@@ -110,12 +158,17 @@
                     <input type="text" id="comment" name="comment"/>
                 </div>
             </div>
-
             <div class="form-group">
-                <div class = 'datetime' id = 'formComment'>
+                <div class = 'datetime'>
                     <label for="datetime">日期</label>
-                    <input id="datetime" type="datetime-local" name="datetime"/>
+                    <input id="datetime" type="datetime-local" name="datetime" value="{{ defaultDateTime }}"/>
                 </div>
+                <br>
+                <button type="button" class="btn btn-primary" onclick="changeDate(-1, 'hour')">上一时</button>
+                <button type="button" class="btn btn-primary" onclick="changeDate(1, 'hour')">下一时</button>
+                <br>
+                <button type="button" class="btn btn-primary" onclick="changeDate(-1, 'day')">上一天</button>
+                <button type="button" class="btn btn-primary" onclick="changeDate(1, 'day')">下一天</button>
             </div>
 
 

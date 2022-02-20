@@ -1,4 +1,5 @@
 # Create your views here.
+# encoding: utf-8
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from functools import wraps
@@ -103,25 +104,34 @@ def detailAdd(request):
 	incomeType = Type.objects.filter(financeType='收入')
 	outcomeType = Type.objects.filter(financeType='支出')
 	hint = ''
-	defaultMember = ''
+	defaultMember = '猫哥'
+	defaultFinanceType = "支出"
+	defaultDateTime = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M")
 	if request.method == 'POST':
+		defaultMember = request.POST['member_id']
+		defaultFinanceType = request.POST['financeType']
+		defaultDateTime = request.POST["datetime"]
 		if request.POST and request.POST['member_id'] and request.POST['financeType'] and request.POST['amount'] and request.POST['foodType'] and (request.POST['comment'] or request.POST['foodType'] not in ['额外支出', '额外收入']):
-			defaultMember = request.POST['member_id']
 			if request.POST['datetime'] == '':
 				d = Detail(member_id=request.POST['member_id'], financeType=request.POST['financeType'], amount=request.POST['amount'], foodType_id=request.POST['foodType'], comment=request.POST['comment'])
 			else:
-				fixTime = datetime.datetime.strptime(request.POST['datetime'], '%Y-%m-%dT%H:%M')
+				input_time = datetime.datetime.strptime(request.POST['datetime'], '%Y-%m-%dT%H:%M')
 				now = datetime.datetime.now()
-				diffTime = now - fixTime
-				if diffTime.days < 0:
+				diff_time = now - input_time
+				if diff_time.days < 0:
 					hint = '不允许填入未来的时间！'
-					return render(request, 'detailAdd.html', {'animals': animals, 'incomeType': incomeType, 'outcomeType': outcomeType, 'hint': hint})
-				d = Detail(member_id=request.POST['member_id'], time=fixTime, financeType=request.POST['financeType'], amount=request.POST['amount'], foodType_id=request.POST['foodType'], comment=request.POST['comment'])
+					return render(request, 'detailAdd.html',
+								  {'defaultMember': defaultMember, "defaultFinanceType": defaultFinanceType,
+								   "defaultDateTime": defaultDateTime, 'animals': animals,
+								   'incomeType': incomeType, 'outcomeType': outcomeType, 'hint': hint})
+				d = Detail(member_id=request.POST['member_id'], time=input_time, financeType=request.POST['financeType'], amount=request.POST['amount'], foodType_id=request.POST['foodType'], comment=request.POST['comment'])
 			d.save()
 			hint = '成功录入粮食记录'
 		else:
 			hint = '戆都填完所有空格！'
-	return render(request, 'detailAdd.html', {'defaultMember': defaultMember, 'animals': animals, 'incomeType': incomeType, 'outcomeType': outcomeType, 'hint': hint})
+	return render(request, 'detailAdd.html', {'defaultMember': defaultMember, "defaultFinanceType": defaultFinanceType,
+											  "defaultDateTime" : defaultDateTime, 'animals': animals,
+											  'incomeType': incomeType, 'outcomeType': outcomeType, 'hint': hint})
 
 	
 
