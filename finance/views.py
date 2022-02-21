@@ -237,26 +237,25 @@ def summaryUpdate():
 			summary = Summary.objects.filter(year= year).filter(month=month)[0]
 		else:
 			summary = Summary(year=year, month=month)
-		summary.catIncome = calculate(detail, '猫哥', 'income')
-		summary.catOutcome = calculate(detail, '猫哥', 'outcome')
-		summary.mouseIncome = calculate(detail, '鼠妹', 'income')
-		summary.mouseOutcome = calculate(detail, '鼠妹', 'outcome')
+		summary.catIncome = calculate(detail, '猫哥', '收入')
+		summary.catOutcome = calculate(detail, '猫哥', '支出')
+		summary.mouseIncome = calculate(detail, '鼠妹', '收入')
+		summary.mouseOutcome = calculate(detail, '鼠妹', '支出')
 		otherAnimal = Animal.objects.exclude(name__in=['猫哥', '鼠妹'])
 		summary.specialIncome = ''
 		summary.specialOutcome = ''
 		for t in otherAnimal:
-			summary.specialIncome += '%s: %.1f; ' % (t.name, calculate(detail, t.name, 'income'))
-			summary.specialOutcome += '%s: %.1f; ' % (t.name, calculate(detail, t.name, 'outcome'))
+			summary.specialIncome += '%s: %.1f; ' % (t.name, calculate(detail, t.name, '收入'))
+			summary.specialOutcome += '%s: %.1f; ' % (t.name, calculate(detail, t.name, '支出'))
 		summary.save()
 
 
 def statisticDisplay(request, financeType):
 	if request.method == 'GET':
 		statisticUpdate(financeType)
-		if financeType == 'income':
+		if financeType == '收入':
 			statistics = IncomeStatistic.objects.order_by('-year', '-month')
-			#statistics = IncomeStatistic.objects.all()
-		elif financeType == 'outcome':
+		elif financeType == '支出':
 			statistics = OutcomeStatistic.objects.order_by('-year', '-month')
 		paginator = Paginator(statistics, 15)
 		pageNum = request.GET.get('page', default='1')
@@ -279,9 +278,9 @@ def statisticDisplay(request, financeType):
 			displayRange = range(paginator.num_pages - 9, paginator.num_pages + 1)
 		# cols = detail.objects.values()[0].keys() # get field name of database
 		data = {'page': page, 'paginator': paginator, 'dis_range': displayRange}
-		if financeType == 'income':
+		if financeType == '收入':
 			return render(request, 'incomeSta.html', data)
-		elif financeType == 'outcome':
+		elif financeType == '支出':
 			return render(request, 'outcomeSta.html', data)
 
 
@@ -314,7 +313,7 @@ def statisticUpdate(financeType):
 
 	# update last month and current month
 	for (month, year, detail) in update_package:
-		if financeType == 'income':
+		if financeType == '收入':
 			for member_id in ['猫哥', '鼠妹']:
 				if IncomeStatistic.objects.filter(year=year).filter(month=month).filter(member_id=member_id):
 					sta = IncomeStatistic.objects.filter(year=year).filter(month=month).filter(member_id=member_id)[0]
@@ -328,7 +327,7 @@ def statisticUpdate(financeType):
 				for t in detail.filter(member_id=member_id, financeType=financeType, foodType_id='额外收入'):
 					sta.incomeOther += '%s: %.1f; ' % (t.comment, t.amount)
 				sta.save()
-		elif financeType == 'outcome':
+		elif financeType == '支出':
 			for member_id in ['猫哥', '鼠妹']:
 				if OutcomeStatistic.objects.filter(year=year).filter(month=month).filter(member_id=member_id):
 					sta = OutcomeStatistic.objects.filter(year=year).filter(month=month).filter(member_id=member_id)[0]
