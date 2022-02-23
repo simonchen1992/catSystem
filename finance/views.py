@@ -10,6 +10,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 import django.utils.timezone as timezone
 from django import forms
 import datetime
+from django.utils.timezone import make_aware
 
 
 
@@ -99,41 +100,58 @@ def detailFilter(request):
 		data = {'page': page, 'paginator': paginator, 'dis_range': displayRange}
 	return render(request, 'detail.html', data)
 
+
 def detailAdd(request):
 	animals = Animal.objects.all()
-	incomeType = Type.objects.filter(financeType='收入')
-	outcomeType = Type.objects.filter(financeType='支出')
-	hint = ''
-	defaultMember = '猫哥'
-	defaultFinanceType = "支出"
-	defaultDateTime = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M")
+	data = {'defaultMember': "猫哥",
+			"defaultFinanceType": "支出",
+			"defaultDateTime": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M"),
+			'animals': animals,
+			'incomeType': Type.objects.filter(financeType='收入'),
+			'outcomeType': Type.objects.filter(financeType='支出'),
+			"duplicate": {"duplicate": False, "defaultAmount": "", "defaultFoodType": "", "defaultComment": "", "detail": ""},
+			'hint': ""}
 	if request.method == 'POST':
-		defaultMember = request.POST['member_id']
-		defaultFinanceType = request.POST['financeType']
-		defaultDateTime = request.POST["datetime"]
-		if request.POST and request.POST['member_id'] and request.POST['financeType'] and request.POST['amount'] and request.POST['foodType'] and (request.POST['comment'] or request.POST['foodType'] not in ['额外支出', '额外收入']):
-			if request.POST['datetime'] == '':
-				d = Detail(member_id=request.POST['member_id'], financeType=request.POST['financeType'], amount=request.POST['amount'], foodType_id=request.POST['foodType'], comment=request.POST['comment'])
-			else:
-				input_time = datetime.datetime.strptime(request.POST['datetime'], '%Y-%m-%dT%H:%M')
-				now = datetime.datetime.now()
-				diff_time = now - input_time
-				if diff_time.days < 0:
-					hint = '不允许填入未来的时间！'
-					return render(request, 'detailAdd.html',
-								  {'defaultMember': defaultMember, "defaultFinanceType": defaultFinanceType,
-								   "defaultDateTime": defaultDateTime, 'animals': animals,
-								   'incomeType': incomeType, 'outcomeType': outcomeType, 'hint': hint})
-				d = Detail(member_id=request.POST['member_id'], time=input_time, financeType=request.POST['financeType'], amount=request.POST['amount'], foodType_id=request.POST['foodType'], comment=request.POST['comment'])
+		data["defaultMember"] = request.POST['member_id']
+		data["defaultFinanceType"] = request.POST['financeType']
+		data["defaultDateTime"] = request.POST["datetime"]
+		if request.POST and request.POST['member_id'] and request.POST['financeType'] and request.POST['amount'] and \
+				request.POST['foodType'] and (
+				request.POST['comment'] or request.POST['foodType'] not in ['额外支出', '额外收入']):
+			# get datetime from frontend
+			input_time = datetime.datetime.strptime(request.POST['datetime'], '%Y-%m-%dT%H:%M')
+			# check if there's duplicate detail in database, double confirm with user
+			duplicate_detail = Detail.objects.filter(member_id=request.POST['member_id'],
+													 financeType=request.POST['financeType'],
+													 amount=request.POST['amount'],
+													 foodType_id=request.POST['foodType'])
+			if duplicate_detail and ('duplicate_check' not in request.POST.keys() or request.POST["duplicate_check"] is True):
+				data["duplicate"]["defaultAmount"] = request.POST['amount']
+				data["duplicate"]["defaultFoodType"] = request.POST['foodType']
+				data["duplicate"]["defaultComment"] = request.POST['comment']
+				for du in duplicate_detail:
+					if du.time.year == input_time.year and du.time.month == input_time.month and du.time.day == input_time.day:
+						du.time += datetime.timedelta(hours=8)
+						data["duplicate"]["duplicate"] = True
+						data["duplicate"]["detail"] += "时间: %s,人物：%s, 金额: %s, 类型: %s, 备注: %s \\n " % (
+						du.time, du.member, du.amount, du.foodType_id, du.comment)
+				if data["duplicate"]["duplicate"]:
+					return render(request, 'detailAdd.html', data)
+			# record detail into database, time will always exist
+			# input_time = datetime.datetime.strptime(request.POST['datetime'], '%Y-%m-%dT%H:%M')
+			now = datetime.datetime.now()
+			diff_time = now - input_time
+			if diff_time.days < 0:
+				data["hint"] = '不允许填入未来的时间！'
+				return render(request, 'detailAdd.html', data)
+			d = Detail(member_id=request.POST['member_id'], time=make_aware(input_time), financeType=request.POST['financeType'],
+					   amount=request.POST['amount'], foodType_id=request.POST['foodType'],
+					   comment=request.POST['comment'])
 			d.save()
-			hint = '成功录入粮食记录'
+			data["hint"] = '成功录入粮食记录'
 		else:
-			hint = '戆都填完所有空格！'
-	return render(request, 'detailAdd.html', {'defaultMember': defaultMember, "defaultFinanceType": defaultFinanceType,
-											  "defaultDateTime" : defaultDateTime, 'animals': animals,
-											  'incomeType': incomeType, 'outcomeType': outcomeType, 'hint': hint})
-
-	
+			data["hint"] = '戆都填完所有空格！'
+	return render(request, 'detailAdd.html', data)
 
 
 def animalDisplay(request):
