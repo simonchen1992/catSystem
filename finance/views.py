@@ -11,7 +11,7 @@ import django.utils.timezone as timezone
 from django import forms
 import datetime
 from django.utils.timezone import make_aware
-
+from django.db.models import Sum
 
 
 def check_login(f):
@@ -68,37 +68,37 @@ def detailDisplay(request):
 		else:
 			return HttpResponse('Wrong password!')
 
-def detailFilter(request):
-	if request.method == 'GET':
-		# if request.GET.get('hint'):
-		# 	hint = request.GET.get('hint')
-		# else:
-		# 	hint = ''
-		if request.GET.get('member', ''):
-			details = Detail.objects.filter(member_id=request.GET.get('member', '')).order_by('-time')
-		else:
-			details = Detail.objects.order_by('-time')
-		paginator = Paginator(details, 15)
-		pageNum = request.GET.get('page', default='1')
-		try:
-			page = paginator.page(pageNum)
-		except Exception as e:
-			page = paginator.page(1)
-			pageNum = 1
+# def detailFilter(request):
+# 	if request.method == 'GET':
+# 		# if request.GET.get('hint'):
+# 		# 	hint = request.GET.get('hint')
+# 		# else:
+# 		# 	hint = ''
+# 		if request.GET.get('member', ''):
+# 			details = Detail.objects.filter(member_id=request.GET.get('member', '')).order_by('-time')
+# 		else:
+# 			details = Detail.objects.order_by('-time')
+# 		paginator = Paginator(details, 15)
+# 		pageNum = request.GET.get('page', default='1')
+# 		try:
+# 			page = paginator.page(pageNum)
+# 		except Exception as e:
+# 			page = paginator.page(1)
+# 			pageNum = 1
 		
-		# 这部分是为了再有大量数据时，仍然保证所显示的页码数量不超过10，
-		pageNum = int(pageNum)
-		if pageNum < 6:
-			if paginator.num_pages <= 10:
-				displayRange = range(1, paginator.num_pages + 1)
-			else:
-				displayRange = range(1, 11)
-		elif (pageNum >= 6) and (pageNum <= paginator.num_pages - 5):
-			displayRange = range(pageNum - 5, pageNum + 5)
-		else:
-			displayRange = range(paginator.num_pages - 9, paginator.num_pages + 1)
-		data = {'page': page, 'paginator': paginator, 'dis_range': displayRange}
-	return render(request, 'detail.html', data)
+# 		# 这部分是为了再有大量数据时，仍然保证所显示的页码数量不超过10，
+# 		pageNum = int(pageNum)
+# 		if pageNum < 6:
+# 			if paginator.num_pages <= 10:
+# 				displayRange = range(1, paginator.num_pages + 1)
+# 			else:
+# 				displayRange = range(1, 11)
+# 		elif (pageNum >= 6) and (pageNum <= paginator.num_pages - 5):
+# 			displayRange = range(pageNum - 5, pageNum + 5)
+# 		else:
+# 			displayRange = range(paginator.num_pages - 9, paginator.num_pages + 1)
+# 		data = {'page': page, 'paginator': paginator, 'dis_range': displayRange}
+# 	return render(request, 'detail.html', data)
 
 
 def detailAdd(request):
@@ -240,7 +240,7 @@ def summaryUpdate():
 		curM = lastM
 		curY = lastY
 		update_package.append((lastM, lastY, detailLastMonth))
-	print(update_package)
+	
 
 	def calculate(d, member_id, type):
 		result = 0
@@ -273,8 +273,16 @@ def statisticDisplay(request, financeType):
 		statisticUpdate(financeType)
 		if financeType == '收入':
 			statistics = IncomeStatistic.objects.order_by('-year', '-month')
+			# statistics = Detail.objects.filter(financeType="收入", foodType="奖金").values("member", "foodType", "time__year", "time__month").annotate(amount=Sum("amount"))
+			# import pandas as pd
+			# statistics = pd.DataFrame(statistics)
+			# input(statistics)
 		elif financeType == '支出':
 			statistics = OutcomeStatistic.objects.order_by('-year', '-month')
+		# new added for filter
+		if request.GET.get('member', ''):
+			statistics = statistics.filter(member_id=request.GET.get('member', '')).order_by('-year', '-month')
+		# /new added for filter
 		paginator = Paginator(statistics, 15)
 		pageNum = request.GET.get('page', default='1')
 		try:
@@ -282,7 +290,6 @@ def statisticDisplay(request, financeType):
 		except Exception as e:
 			page = paginator.page(1)
 			pageNum = 1
-
 		# 这部分是为了再有大量数据时，仍然保证所显示的页码数量不超过10，
 		pageNum = int(pageNum)
 		if pageNum < 6:
@@ -295,11 +302,28 @@ def statisticDisplay(request, financeType):
 		else:
 			displayRange = range(paginator.num_pages - 9, paginator.num_pages + 1)
 		# cols = detail.objects.values()[0].keys() # get field name of database
-		data = {'page': page, 'paginator': paginator, 'dis_range': displayRange}
+		data = {'page': page, 'paginator': paginator, 'dis_range': displayRange, "period": ""}
+	elif request.method == 'POST':
+		start_year = int(request.POST['start_month'].split("-")[0])
+		start_month = int(request.POST['start_month'].split("-")[1])
+		end_year = int(request.POST['end_month'].split("-")[0])
+		end_month = int(request.POST['end_month'].split("-")[1])
 		if financeType == '收入':
-			return render(request, 'incomeSta.html', data)
+			statistics = IncomeStatistic.objects.filter(year__gte=start_year, year__lte=end_year, month__gte=start_month, month__lte=end_month).values('member_id')\
+				.annotate(incomeSalary=Sum("incomeSalary"), incomeReward=Sum("incomeReward"), incomeFinance=Sum("incomeFinance"), incomeOther=Sum("incomeOther"))
 		elif financeType == '支出':
-			return render(request, 'outcomeSta.html', data)
+			statistics = OutcomeStatistic.objects.filter(year__gte=start_year, year__lte=end_year, month__gte=start_month, month__lte=end_month).values('member_id')\
+				.annotate(personalExpense=Sum("personalExpense"), familyExpense=Sum("familyExpense"), outcomePerMeal=Sum("outcomePerMeal"), outcomeTogMeal=Sum("outcomeTogMeal")\
+					, outcomeGame=Sum("outcomeGame"), outcomeWork=Sum("outcomeWork"), outcomeGift=Sum("outcomeGift"), outcomeTraffic=Sum("outcomeTraffic")\
+						, outcomePurchase=Sum("outcomePurchase"), outcomeFamCat=Sum("outcomeFamCat"), outcomeFamEle=Sum("outcomeFamEle"), outcomeFamGas=Sum("outcomeFamGas")\
+							, outcomeFamPurchase=Sum("outcomeFamPurchase"), outcomeFamTravel=Sum("outcomeFamTravel"), outcomeOther=Sum("outcomeOther"))
+		paginator = Paginator(statistics, 15)
+		page = paginator.page(1)
+		data = {'page': page, 'paginator': paginator, 'dis_range': [1], "period": "{} - {}".format(request.POST['start_month'].replace("-", "."), request.POST['end_month'].replace("-", "."))}
+	if financeType == '收入':
+		return render(request, 'incomeSta.html', data)
+	elif financeType == '支出':
+		return render(request, 'outcomeSta.html', data)
 
 
 def statisticUpdate(financeType):
@@ -308,7 +332,7 @@ def statisticUpdate(financeType):
 	detailCurMonth = Detail.objects.filter(time__year=curY).filter(time__month=curM)
 	update_package = [(curM, curY, detailCurMonth)]
 	# update for one past year from now
-	for i in range(11):
+	for i in range(2):
 		if curM > 1:
 			lastY = curY
 			lastM = curM - 1
@@ -320,7 +344,7 @@ def statisticUpdate(financeType):
 		curM = lastM
 		curY = lastY
 		update_package.append((lastM, lastY, detailLastMonth))
-	print(update_package)
+	
 
 	def calculate(d, member_id, financeType, foodType):
 		result = 0
@@ -341,9 +365,10 @@ def statisticUpdate(financeType):
 				sta.incomeFinance = calculate(detail, member_id, financeType, '理财')
 				sta.incomeSalary = calculate(detail, member_id, financeType, '工资')
 				sta.incomeReward = calculate(detail, member_id, financeType, '奖金')
-				sta.incomeOther = ''
-				for t in detail.filter(member_id=member_id, financeType=financeType, foodType_id='额外收入'):
-					sta.incomeOther += '%s: %.1f; ' % (t.comment, t.amount)
+				# sta.incomeOther = ''
+				# for t in detail.filter(member_id=member_id, financeType=financeType, foodType_id='额外收入'):
+				# 	sta.incomeOther += '%s: %.1f; ' % (t.comment, t.amount)
+				sta.incomeOther = calculate(detail, member_id, financeType, '额外收入')
 				sta.save()
 		elif financeType == '支出':
 			for member_id in ['猫哥', '鼠妹']:
@@ -367,9 +392,10 @@ def statisticUpdate(financeType):
 				sta.outcomeFamPurchase = calculate(detail, member_id, financeType, '家庭采购')
 				sta.personalExpense = round(sta.outcomePerMeal + sta.outcomeGame + sta.outcomeWork + sta.outcomeGift + sta.outcomePurchase + togMealCal + sta.outcomeTraffic, 2)
 				sta.familyExpense = round(sta.outcomeFamCat + sta.outcomeFamEle + sta.outcomeFamGas + sta.outcomeFamTravel + sta.outcomeFamPurchase, 2)
-				sta.outcomeOther = ''
-				for t in detail.filter(member_id=member_id, financeType=financeType, foodType_id='额外支出'):
-					sta.outcomeOther += '%s: %.1f; ' % (t.comment, t.amount)
+				# sta.outcomeOther = ''
+				# for t in detail.filter(member_id=member_id, financeType=financeType, foodType_id='额外支出'):
+				# 	sta.outcomeOther += '%s: %.1f; ' % (t.comment, t.amount)
+				sta.outcomeOther = calculate(detail, member_id, financeType, '额外支出')
 				sta.save()
 
 	# update current month

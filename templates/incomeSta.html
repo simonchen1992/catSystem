@@ -12,44 +12,114 @@
          <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
          <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
       <![endif]-->
+      <script>
+        function filter(type, value) {
+          if(value === '无筛选'){
+              <!--   Here use \\? because java will transfer to \? to Regex     -->
+              var re =new RegExp("(\\?|&)" + type + "=[^&]*");
+              var reQ = new RegExp("\\?" + type + "=[^&]*");
+              window.location.href = window.location.href.replace(re, "");
+              if (window.location.href.search(reQ) != -1 && window.location.href.search(/&/) != -1){
+                  window.location.href = window.location.href.replace(reQ, "").replace("&", "?");
+              }
+          }
+          else if (window.location.href.search(/\?/) != -1){
+              var re =new RegExp(type + "=[^&]*");
+              if (window.location.href.search(re) != -1){
+                  window.location.href = window.location.href.replace(re, type + "=" + value);
+              }
+              else{
+                  window.location.href += "&" + type + "=" + value;
+              }
+          }
+          else{
+              window.location.href += "?" + type + "=" + value;
+          }
+        } 
+
+        function goto_page(pageNum) {
+              if (window.location.href.search(/\?/) != -1){
+                  var re =new RegExp("page=[^&]*");
+                  if (window.location.href.search(re) != -1){
+                      window.location.href = window.location.href.replace(re, "page=" + pageNum);
+                  }
+                  else{
+                      window.location.href += "&page=" + pageNum;
+                  }
+              }
+              else{
+                  window.location.href += "?page=" + pageNum;
+              }
+        }
+
+        function tr_show(){
+          var trList= $("tbody").children("tr");//获取tr，遍历
+          for(var i =0;i<trList.length;i++){
+            var tdArr = trList.eq(i).find("td");//获取td遍历
+            var tdText = tdArr.eq(17).text();//获取td内容,第17列,目前只用于Outcomesta
+            tdArr.eq(17).attr("title",tdText);//设置title
+          }
+        }
+      </script>
    </head>
-<body>
-    <h1>精致分析--收入</h1>
+<body onload="tr_show()">
+    <h1>精致分析--收入 {{ period }}</h1>
     <hr>
-    <div class="container-fluid">
-    <nav aria-label="Page navigation">
-      <ul class="pagination">
+    <div class="container-fluid" name="fanye">
+      <nav aria-label="Page navigation">
+        <ul class="pagination">
 
-        <!--上一页-->
-        <li class="{% if not page.has_previous %}disabled{% endif %}">
-          {% if page.has_previous %}
-            <a href="?page={{ page.previous_page_number }}" aria-label="Previous">
-          {% endif %}
-            <span aria-hidden="true">&laquo;</span>
-          </a>
-        </li>
+            <!--上一页-->
+            <li class="{% if not page.has_previous %}disabled{% endif %}">
+              {% if page.has_previous %}
+                <a href="javascript:void(0);" aria-label="Previous" onclick="goto_page({{ page.previous_page_number }})">
+              {% endif %}
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
 
-        <!--页码-->
-        <!--这里展示页码使用传递过来的dis_range -->
-        {% for num in dis_range %}
-        <li class="{% if num == page.number %}active{% else %}{% endif %}" >
-          <a href="?page={{ num }}">{{ num }}</a>
-        </li>
-        {% endfor %}
+            <!--页码-->
+            <!--这里展示页码使用传递过来的dis_range -->
+            {% for num in dis_range %}
+            <li class="{% if num == page.number %}active{% else %}{% endif %}" >
+                <a href="javascript:void(0);" onclick="goto_page({{ num }})">{{ num }}</a>
+            </li>
+            {% endfor %}
 
-        <!--下一页-->
-        <li class="{% if not page.has_next %}disabled{% endif %}">
-          {% if page.has_next %}
-            <a href="?page={{ page.next_page_number }}" aria-label="Next">
-          {% endif %}
-            <span aria-hidden="true">&raquo;</span>
-          </a>
-        </li>
-      </ul>
-    <a href="/finance" style="float:right; margin:0px 50px 0px 10px" >返回首页 </a>
-    </nav>
+            <!--下一页-->
+            <li class="{% if not page.has_next %}disabled{% endif %}">
+              {% if page.has_next %}
+                <a href="javascript:void(0);" aria-label="Next" onclick="goto_page({{ page.next_page_number }})">
+              {% endif %}
+                <span aria-hidden="true">&raquo;</span>
+              </a>
+            </li>
+          </ul>
+      <a href="/finance" style="float:right; margin:0px 50px 0px 10px" >返回首页 </a>
+      </nav>
     </div>
 
+    <div name="tongji">
+      <form style="float:right" action ='/finance/statistic/income/' method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label >开始月份</label>
+          <input name = "start_month" id="start_month" type="month">
+        </div>
+        <div class="form-group">
+          <label >结束月份</label>
+          <input name = "end_month" id="end_month" type="month">
+        </div>
+        <button type="submit" class="btn btn-default">开始筛选总计条目</button>
+      </form>
+      
+      <select style="width:100px; float:right; margin:0px 90px 0px 10px" class="form-control" onchange="filter('member', this.value)">
+        <option>筛选人</option>
+        <option>猫哥</option>
+        <option>鼠妹</option>
+        <option>无筛选</option>
+      </select>
+    </div>
 
     <div class ='table'>
     <table class="table">
@@ -57,27 +127,27 @@
             <tr>
                 <th style="white-space:nowrap">年份</th>
                 <th style="white-space:nowrap">月份</th>
-                <th style="white-space:nowrap">更改时间</th>
+                <!--<th style="white-space:nowrap">更改时间</th>-->
                 <th style="white-space:nowrap">人员</th>
                 <th style="white-space:nowrap">工资</th>
                 <th style="white-space:nowrap">奖金</th>
                 <th style="white-space:nowrap">理财</th>
                 <th style="white-space:nowrap">额外收入</th>
+                <th style="white-space:nowrap">总计收入(不包括额外)</th>
             </tr>
         </thead>
         {% for item in page %}
             <tbody>
                 <tr>
                     <td style="white-space:nowrap">{{ item.year }}</td>
-                    <td style="white-space:nowrap">
-                        {{ item.month }}
-                    </td>
-                    <td style="white-space:nowrap">{{ item.updateTime|date:"Y-m-d H:i:s" }}</td>
+                    <td style="white-space:nowrap">{{ item.month }}</td>
+                    <!--<td style="white-space:nowrap">{{ item.updateTime|date:"Y-m-d H:i:s" }}</td>-->
                     <td style="white-space:nowrap">{{ item.member_id }}</td>
-                    <td>{{ item.incomeSalary }}</td>
-                    <td>{{ item.incomeReward }}</td>
-                    <td>{{ item.incomeFinance }}</td>
-                    <td>{{ item.incomeOther }}</td>
+                    <td>{{ item.incomeSalary|floatformat }}</td>
+                    <td>{{ item.incomeReward|floatformat }}</td>
+                    <td>{{ item.incomeFinance|floatformat }}</td>
+                    <td>{{ item.incomeOther|floatformat }}</td>
+                    <td>{{ item.incomeFinance|add:item.incomeSalary|add:item.incomeReward|floatformat}}</td>
                 </tr>
             </tbody>
         {% endfor %}
