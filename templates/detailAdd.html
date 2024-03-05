@@ -123,7 +123,7 @@
         if ("{{ duplicate.duplicate }}" === "True"){
             var c = confirm("以下列出已录入且可能重复项目，请确认记录是否重复填写：\n" + "{{ duplicate.detail }}");
             if (c === true){
-            $.post('/finance/detail/add/', {"member_id": "{{ defaultMember }}",
+            $.post('/finance/detail/add/', {"member": "{{ defaultMember }}",
                 "financeType": "{{ defaultFinanceType }}", "amount": "{{ duplicate.defaultAmount }}",
                 "foodType": "{{ duplicate.defaultFoodType }}", "comment": "{{ duplicate.defaultComment }}",
                 "duplicate_check": "true", "datetime": "{{ defaultDateTime }}", 'csrfmiddlewaretoken': csrftoken}, function(ret){
@@ -139,12 +139,12 @@
         <form action ='/finance/detail/add/' method="post">
             {% csrf_token %}
             <div class="form-group">
-                <div class = 'member_id'>
+                <div class = 'member'>
                     <label >哪只？</label>
-                    <input name = "member_id" id="member_id" readonly="readonly" value={{ defaultMember }}>
+                    <input name = "member" id="member" readonly="readonly" value={{ defaultMember }}>
                     <div class="btn-group">
                         {% for animal in animals %}
-                            <button type="button" class="btn btn-primary" onclick="buttonGroupClick('member_id', this)">{{ animal.name }}</button>
+                            <button type="button" class="btn btn-primary" onclick="buttonGroupClick('member', this)">{{ animal.name }}</button>
                         {% endfor %}
                     </div>
                 </div>

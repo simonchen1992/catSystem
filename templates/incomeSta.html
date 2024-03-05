@@ -60,55 +60,74 @@
             tdArr.eq(17).attr("title",tdText);//设置title
           }
         }
+
+        function check(){
+            var startMonth=document.getElementById('start_month');
+            var startYear=startMonth.value.split("-")[0]
+            var startMonth=startMonth.value.split("-")[1]
+            var endMonth=document.getElementById('end_month');
+            var endYear=endMonth.value.split("-")[0]
+            var endMonth=endMonth.value.split("-")[1]
+            if(eval(startYear)>eval(endYear)){
+                alert('开始月份大于结束月份');
+                window.location.href = window.location.href;
+                return false;
+            }else if(startYear==endYear && eval(startMonth)>eval(endMonth)){
+                alert('开始月份大于结束月份');
+                window.location.href = window.location.href;
+                return false;
+            }
+        }
       </script>
-   </head>
+</head>
 <body onload="tr_show()">
     <h1>精致分析--收入 {{ period }}</h1>
     <hr>
+    <p style="color: red; margin:10px 15px">{{ hint }}</p>
     <div class="container-fluid" name="fanye">
       <nav aria-label="Page navigation">
         <ul class="pagination">
 
-            <!--上一页-->
-            <li class="{% if not page.has_previous %}disabled{% endif %}">
-              {% if page.has_previous %}
-                <a href="javascript:void(0);" aria-label="Previous" onclick="goto_page({{ page.previous_page_number }})">
-              {% endif %}
-                <span aria-hidden="true">&laquo;</span>
-              </a>
-            </li>
+          <!--上一页-->
+          <li class="{% if not page.has_previous %}disabled{% endif %}">
+            {% if page.has_previous %}
+              <a href="javascript:void(0);" aria-label="Previous" onclick="goto_page({{ page.previous_page_number }})">
+            {% endif %}
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
 
-            <!--页码-->
-            <!--这里展示页码使用传递过来的dis_range -->
-            {% for num in dis_range %}
-            <li class="{% if num == page.number %}active{% else %}{% endif %}" >
-                <a href="javascript:void(0);" onclick="goto_page({{ num }})">{{ num }}</a>
-            </li>
-            {% endfor %}
+          <!--页码-->
+          <!--这里展示页码使用传递过来的dis_range -->
+          {% for num in dis_range %}
+          <li class="{% if num == page.number %}active{% else %}{% endif %}" >
+              <a href="javascript:void(0);" onclick="goto_page({{ num }})">{{ num }}</a>
+          </li>
+          {% endfor %}
 
-            <!--下一页-->
-            <li class="{% if not page.has_next %}disabled{% endif %}">
-              {% if page.has_next %}
-                <a href="javascript:void(0);" aria-label="Next" onclick="goto_page({{ page.next_page_number }})">
-              {% endif %}
-                <span aria-hidden="true">&raquo;</span>
-              </a>
-            </li>
-          </ul>
+          <!--下一页-->
+          <li class="{% if not page.has_next %}disabled{% endif %}">
+            {% if page.has_next %}
+              <a href="javascript:void(0);" aria-label="Next" onclick="goto_page({{ page.next_page_number }})">
+            {% endif %}
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+        </ul>
       <a href="/finance" style="float:right; margin:0px 50px 0px 10px" >返回首页 </a>
       </nav>
     </div>
 
     <div name="tongji">
-      <form style="float:right" action ='/finance/statistic/income/' method="post">
+      <form onsubmit="return check()" style="float:right" action ='/finance/statistic/income/' method="post">
         {% csrf_token %}
         <div class="form-group">
           <label >开始月份</label>
-          <input name = "start_month" id="start_month" type="month">
+          <input name = "start_month" id="start_month" type="month" required>
         </div>
         <div class="form-group">
           <label >结束月份</label>
-          <input name = "end_month" id="end_month" type="month">
+          <input name = "end_month" id="end_month" type="month" required>
         </div>
         <button type="submit" class="btn btn-default">开始筛选总计条目</button>
       </form>
@@ -142,7 +161,7 @@
                     <td style="white-space:nowrap">{{ item.year }}</td>
                     <td style="white-space:nowrap">{{ item.month }}</td>
                     <!--<td style="white-space:nowrap">{{ item.updateTime|date:"Y-m-d H:i:s" }}</td>-->
-                    <td style="white-space:nowrap">{{ item.member_id }}</td>
+                    <td style="white-space:nowrap">{{ item.member }}</td>
                     <td>{{ item.incomeSalary|floatformat }}</td>
                     <td>{{ item.incomeReward|floatformat }}</td>
                     <td>{{ item.incomeFinance|floatformat }}</td>
