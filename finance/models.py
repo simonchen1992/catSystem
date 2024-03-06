@@ -86,6 +86,7 @@ class IncomeStatistic(models.Model):
 	incomeFinance = models.FloatField(verbose_name='理财', default=0)
 	incomeSalary = models.FloatField(verbose_name='工资', default=0)
 	incomeReward = models.FloatField(verbose_name='奖金', default=0)
+	incomeBaby = models.FloatField(verbose_name='派派红包', default=0)
 	incomeOther = models.CharField(max_length=200, verbose_name='额外收入', default='')
 	
 
@@ -109,6 +110,8 @@ class OutcomeStatistic(models.Model):
 	outcomeGift = models.FloatField(verbose_name='礼物', default=0)
 	outcomePurchase = models.FloatField(verbose_name='购物', default=0)
 	outcomeTraffic = models.FloatField(verbose_name='交通', default=0)
+	outcomeMedical = models.FloatField(verbose_name='医疗', default=0)
+	outcomeFamBaby = models.FloatField(verbose_name='派派', default=0)
 	outcomeFamTravel = models.FloatField(verbose_name='旅游', default=0)
 	outcomeFamCat = models.FloatField(verbose_name='趣多多', default=0)
 	outcomeFamEle = models.FloatField(verbose_name='水电', default=0)

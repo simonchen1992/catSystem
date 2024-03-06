@@ -226,6 +226,7 @@ def summary_update():
 
 
 def statistic_display(request, finance_type):
+    data = {}
     if request.method == 'GET':
         statistic_update(finance_type)
         if finance_type == '收入':
@@ -277,7 +278,7 @@ def statistic_display(request, finance_type):
                     statistics = IncomeStatistic.objects.filter(year=date[0], month__gte=date[1], month__lte=date[2])
                 else:
                     statistics = statistics | IncomeStatistic.objects.filter(year=date[0], month__gte=date[1], month__lte=date[2])
-            statistics = statistics.values('member').annotate(incomeSalary=Sum("incomeSalary"), incomeReward=Sum("incomeReward"), incomeFinance=Sum("incomeFinance"), incomeOther=Sum("incomeOther"))
+            statistics = statistics.values('member').annotate(incomeSalary=Sum("incomeSalary"), incomeReward=Sum("incomeReward"), incomeFinance=Sum("incomeFinance"), incomeBaby=Sum("incomeBaby"), incomeOther=Sum("incomeOther"))
         elif finance_type == '支出':
             for date in date_filter:
                 if not statistics:
@@ -285,9 +286,9 @@ def statistic_display(request, finance_type):
                 else:
                     statistics = statistics | OutcomeStatistic.objects.filter(year=date[0], month__gte=date[1], month__lte=date[2])
             statistics = statistics.values('member').annotate(personalExpense=Sum("personalExpense"), familyExpense=Sum("familyExpense"), outcomePerMeal=Sum("outcomePerMeal"), outcomeTogMeal=Sum("outcomeTogMeal")
-                  , outcomeGame=Sum("outcomeGame"), outcomeWork=Sum("outcomeWork"), outcomeGift=Sum("outcomeGift"), outcomeTraffic=Sum("outcomeTraffic")
-                  , outcomePurchase=Sum("outcomePurchase"), outcomeFamCat=Sum("outcomeFamCat"), outcomeFamEle=Sum("outcomeFamEle"), outcomeFamGas=Sum("outcomeFamGas")
-                  , outcomeFamPurchase=Sum("outcomeFamPurchase"), outcomeFamTravel=Sum("outcomeFamTravel"), outcomeOther=Sum("outcomeOther"))
+                                                              , outcomeGame=Sum("outcomeGame"), outcomeWork=Sum("outcomeWork"), outcomeGift=Sum("outcomeGift"), outcomeTraffic=Sum("outcomeTraffic")
+                                                              , outcomePurchase=Sum("outcomePurchase"), outcomeFamCat=Sum("outcomeFamCat"), outcomeFamEle=Sum("outcomeFamEle"), outcomeFamGas=Sum("outcomeFamGas")
+                                                              , outcomeFamBaby=Sum("outcomeFamBaby"), outcomeMedical=Sum("outcomeMedical"), outcomeFamPurchase=Sum("outcomeFamPurchase"), outcomeFamTravel=Sum("outcomeFamTravel"), outcomeOther=Sum("outcomeOther"))
         paginator = Paginator(statistics, 15)
         page = paginator.page(1)
         data = {'page': page, 'paginator': paginator, 'dis_range': [1], "period": "{} - {}".format(request.POST['start_month'].replace("-", "."), request.POST['end_month'].replace("-", "."))}
@@ -310,6 +311,7 @@ def statistic_update(finance_type):
                 sta.incomeFinance = calculate(detail, member, finance_type, '理财')
                 sta.incomeSalary = calculate(detail, member, finance_type, '工资')
                 sta.incomeReward = calculate(detail, member, finance_type, '奖金')
+                sta.incomeBaby = calculate(detail, member, finance_type, '派派红包')
                 # sta.incomeOther = ''
                 # for t in detail.filter(member=member, financeType=financeType, foodType='额外收入'):
                 # 	sta.incomeOther += '%s: %.1f; ' % (t.comment, t.amount)
@@ -328,15 +330,17 @@ def statistic_update(finance_type):
                 sta.outcomeGame = calculate(detail, member, finance_type, '游戏')
                 sta.outcomeWork = calculate(detail, member, finance_type, '工作')
                 sta.outcomeGift = calculate(detail, member, finance_type, '礼物')
-                sta.outcomeFamTravel = calculate(detail, member, finance_type, '旅游')
-                sta.outcomePurchase = calculate(detail, member, finance_type, '购物')
                 sta.outcomeTraffic = calculate(detail, member, finance_type, '交通')
+                sta.outcomePurchase = calculate(detail, member, finance_type, '购物')
+                sta.outcomeMedical = calculate(detail, member, finance_type, '医疗')
+                sta.outcomeFamBaby = calculate(detail, member, finance_type, '派派')
                 sta.outcomeFamCat = calculate(detail, member, finance_type, '趣多多')
                 sta.outcomeFamEle = calculate(detail, member, finance_type, '水电')
                 sta.outcomeFamGas = calculate(detail, member, finance_type, '煤气')
                 sta.outcomeFamPurchase = calculate(detail, member, finance_type, '家庭采购')
-                sta.personalExpense = round(sta.outcomePerMeal + sta.outcomeGame + sta.outcomeWork + sta.outcomeGift + sta.outcomePurchase + tog_meal_cal + sta.outcomeTraffic, 2)
-                sta.familyExpense = round(sta.outcomeFamCat + sta.outcomeFamEle + sta.outcomeFamGas + sta.outcomeFamTravel + sta.outcomeFamPurchase, 2)
+                sta.outcomeFamTravel = calculate(detail, member, finance_type, '旅游')
+                sta.personalExpense = round(sta.outcomeMedical + sta.outcomePerMeal + sta.outcomeGame + sta.outcomeWork + sta.outcomeGift + sta.outcomePurchase + tog_meal_cal + sta.outcomeTraffic, 2)
+                sta.familyExpense = round(sta.outcomeFamBaby + sta.outcomeFamCat + sta.outcomeFamEle + sta.outcomeFamGas + sta.outcomeFamTravel + sta.outcomeFamPurchase, 2)
                 # sta.outcomeOther = ''
                 # for t in detail.filter(member=member, financeType=financeType, foodType='额外支出'):
                 # 	sta.outcomeOther += '%s: %.1f; ' % (t.comment, t.amount)

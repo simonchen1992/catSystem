@@ -151,6 +151,7 @@
                 <th style="white-space:nowrap">工资</th>
                 <th style="white-space:nowrap">奖金</th>
                 <th style="white-space:nowrap">理财</th>
+                <th style="white-space:nowrap">派派红包</th>
                 <th style="white-space:nowrap">额外收入</th>
                 <th style="white-space:nowrap">总计收入(不包括额外)</th>
             </tr>
@@ -165,8 +166,9 @@
                     <td>{{ item.incomeSalary|floatformat }}</td>
                     <td>{{ item.incomeReward|floatformat }}</td>
                     <td>{{ item.incomeFinance|floatformat }}</td>
+                    <td>{{ item.incomeBaby|floatformat }}</td>
                     <td>{{ item.incomeOther|floatformat }}</td>
-                    <td>{{ item.incomeFinance|add:item.incomeSalary|add:item.incomeReward|floatformat}}</td>
+                    <td>{{ item.incomeFinance|add:item.incomeSalary|add:item.incomeReward|add:item.incomeBaby|floatformat}}</td>
                 </tr>
             </tbody>
         {% endfor %}
